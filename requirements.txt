@@ -1,0 +1,7 @@
+django
+pillow
+django-jazzmin
+WeasyPrint
+django-admin-rangefilter
+gunicorn
+whitenoise
