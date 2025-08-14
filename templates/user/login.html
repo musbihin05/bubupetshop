@@ -156,13 +156,13 @@
           </div>
 
           <!-- Remember Me & Forgot Password -->
-          <div class="flex items-center justify-between mb-6">
+          {% comment %} <div class="flex items-center justify-between mb-6">
             <div class="flex items-center">
               <input id="remember-me" type="checkbox" name="remember-me" class="form-checkbox" />
               <label for="remember-me" class="ml-2 text-sm text-gray-600">Ingat saya</label>
             </div>
             <a href="#" class="text-sm text-orange-theme hover:underline">Lupa password?</a>
-          </div>
+          </div> {% endcomment %}
 
           <!-- Submit Button -->
           <div class="mb-6">
@@ -237,8 +237,7 @@
               </span>
             </div>
             <p class="text-xs text-gray-500 mt-2">
-              Password harus minimal 8 karakter dan mengandung huruf besar,
-              huruf kecil, dan angka
+              Password harus minimal 8 karakter dan mengandun huruf dan angka
             </p>
             {% if error.password1 %}
             <p class="text-red-500 text-xs mt-1">{{ error.password1.0 }}</p>
@@ -262,7 +261,7 @@
           </div>
 
           <!-- Terms and Conditions -->
-          <div class="mb-6">
+          {% comment %} <div class="mb-6">
             <div class="flex items-start">
               <input id="terms" type="checkbox" class="form-checkbox mt-1" required />
               <label for="terms" class="ml-2 text-sm text-gray-600">
@@ -272,7 +271,7 @@
                 <a href="#" class="text-orange-theme hover:underline">Kebijakan Privasi</a>
               </label>
             </div>
-          </div>
+          </div> {% endcomment %}
 
           <!-- Submit Button -->
           <div class="mb-6">

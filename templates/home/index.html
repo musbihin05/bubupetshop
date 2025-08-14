@@ -18,7 +18,7 @@
     <p class="text-base sm:text-lg md:text-xl mb-8 animate-fade-in animation-delay-200"
       style="text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9)">
       Layanan petshop menjadi lebih mudah dan terpercaya dengan Bubu Petshop.
-      Booking layanan kesehatan, grooming, dan penitipan hewan peliharaan Anda
+      Booking layanan vaksin & steril, grooming, dan penitipan hewan peliharaan Anda
       hanya dengan beberapa klik.
     </p>
   </div>
@@ -32,7 +32,7 @@
         Layanan Kami
         <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
       </span>
-      <i class="fas fa-paw absolute -top-6 -right-6 text-orange-theme opacity-80 text-5xl"></i>
+      {% comment %} <i class="fas fa-paw absolute -top-6 -right-6 text-orange-theme opacity-80 text-5xl"></i> {% endcomment %}
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Service 1: Kesehatan Hewan -->
@@ -41,12 +41,12 @@
         <img src="{% static 'base-img/layanan/image kesehatan.jpg' %}" alt="Kesehatan Hewan"
           class="w-full h-48 object-cover rounded-lg mb-6" />
         <h3 class="text-2xl font-semibold text-gray-800 mb-4">
-          Kesehatan Hewan
+          Vaksin & Steril
         </h3>
         <p class="text-gray-600 leading-relaxed mb-6">
-          Dokter hewan di Bubu Petshop siap ke rumah/apartemen Anda. Layanan
-          dokter hewan tersedia untuk hewan peliharaan dan ternak. Dokter hewan
-          kami memiliki sertifikat resmi, berpengalaman & terpercaya.
+          Layanan vaksin dan sterilisasi untuk anjing dan kucing Anda, membantu mencegah penyakit berbahaya, 
+          mengontrol populasi, dan menjaga kesehatan jangka panjang. Proses aman, cepat,
+          dan dilakukan oleh tenaga profesional yang berpengalaman.
         </p>
         <a href="{% url 'layanan:layanan_kesehatan' %}" class="btn-modern"> Lihat Selengkapnya </a>
       </div>
@@ -94,8 +94,8 @@
         Katalog Produk
         <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
       </span>
-      <i
-        class="fas fa-box-open absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+      {% comment %} <i
+        class="fas fa-box-open absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
     </h2>
 
     <!-- Product Filter Tabs -->
@@ -176,8 +176,8 @@
         Tentang Kami
         <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
       </span>
-      <i
-        class="fas fa-store absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+      {% comment %} <i
+        class="fas fa-store absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
     </h2>
     <p class="text-gray-600 text-lg max-w-3xl mx-auto">
       Bubu Petshop adalah platform booking terdepan untuk layanan perawatan
@@ -196,8 +196,8 @@
         Lokasi Kami
         <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
       </span>
-      <i
-        class="fas fa-map-marker-alt absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+      {% comment %} <i
+        class="fas fa-map-marker-alt absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
     </h2>
     <div class="flex justify-center">
       <div class="relative w-full max-w-3xl h-96 rounded-lg overflow-hidden shadow-lg">
