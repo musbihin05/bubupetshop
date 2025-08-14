@@ -24,9 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-%xt618%*5go6544jk7-va^=i@78sd9_=ku1xl3y&g9vifc#*r5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["bubupetshop.onrender.com", "http://127.0.0.1:8000/"]
+ALLOWED_HOSTS = ["bubupetshop.onrender.com",
+                 "http://127.0.0.1:8000/",
+                 ]
 
 
 # Application definition
