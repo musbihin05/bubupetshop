@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-%xt618%*5go6544jk7-va^=i@78sd9_=ku1xl3y&g9vifc#*r5
 DEBUG = True
 
 ALLOWED_HOSTS = ["bubupetshop.onrender.com",
-                 "http://127.0.0.1:8000/",
+                 "127.0.0.1",
                  ]
 
 
