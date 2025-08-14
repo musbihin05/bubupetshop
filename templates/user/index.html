@@ -1,0 +1,182 @@
+{% extends 'base.html' %} {% load static %} {% block title %} {{ title }}
+{% endblock title %} {% block content %}
+<!-- Profile Section -->
+<section class="py-12 md:py-16 bg-white mt-8 relative">
+  <div class="container mx-auto px-4 md:px-8 lg:px-16">
+    <div class="max-w-3xl mx-auto">
+      <!-- Section Title -->
+      <div class="mb-12 text-center relative">
+        <h1 class="text-3xl md:text-4xl font-bold text-orange-theme mb-4">
+          Profile Saya
+        </h1>
+        <p class="text-gray-600 max-w-lg mx-auto">
+          Kelola informasi pribadi Anda dan perbarui detail akun.
+        </p>
+        <i
+          class="fas fa-user-cog absolute top-0 right-0 sm:right-8 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+      </div>
+
+      <!-- Profile Form -->
+      <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-8">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-700 mb-6 pb-4 border-b border-gray-200">
+          Informasi Pribadi
+        </h2>
+
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == "success" %}
+        <div class="mb-4">
+          <p class="text-green-500 text-sm text-center">{{ message }}</p>
+        </div>
+        {% endif %}
+        {% if message.tags == "error" %}
+        <div class="mb-4">
+          <p class="text-red-500 text-sm text-center">{{ message }}</p>
+        </div>
+        {% endif %}
+        {% if message.tags == "info" %}
+        <div class="mb-4">
+          <p class="text-blue-500 text-sm text-center">{{ message }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        <form id="profile-form" class="space-y-6" method="POST" action="{% url 'user:update_profile' %}">
+          {% csrf_token %}
+          <!-- Name -->
+          <div>
+            <label for="name" class="form-label">Nama Lengkap</label>
+            <input type="text" id="name" name="nama" class="form-input"
+              value="{% if profile_old %}{{ profile_old.nama }}{% else %}{{ akun.nama }}{% endif %}" required>
+            {% if profile_error.nama %}
+            <p class="text-red-500 text-xs mt-1">{{ profile_error.nama.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Phone Number -->
+          <div>
+            <label for="phone" class="form-label">Nomor Telepon</label>
+            <input type="tel" id="phone" name="no_hp" class="form-input"
+              value="{% if profile_old %}{{ profile_old.no_hp }}{% else %}{{ akun.no_hp }}{% endif %}" required>
+            {% if profile_error.no_hp %}
+            <p class="text-red-500 text-xs mt-1">{{ profile_error.no_hp.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Address -->
+          <div>
+            <label for="address" class="form-label">Alamat</label>
+            <textarea id="address" name="alamat" rows="3" class="form-input resize-none"
+              required>{% if profile_old %}{{ profile_old.alamat }}{% else %}{{ akun.alamat }}{% endif %}</textarea>
+            {% if profile_error.alamat %}
+            <p class="text-red-500 text-xs mt-1">{{ profile_error.alamat.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-4">
+            <button type="submit" name="modalBtn" value="updateProfile" class="btn-modern w-full md:w-auto">
+              Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Password Change Form -->
+      <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-700 mb-6 pb-4 border-b border-gray-200">
+          Ubah Password
+        </h2>
+
+        <form id="password-form" class="space-y-6" method="POST" action="{% url 'user:change_password' %}">
+          {% csrf_token %}
+          <!-- Current Password -->
+          <div>
+            <label for="current-password" class="form-label">Password Saat Ini</label>
+            <div class="relative">
+              <input type="password" id="current-password" name="old_password" class="form-input pr-10" required
+                value="{% if password_old %}{{ password_old.old_password }}{% endif %}">
+              <button type="button"
+                class="toggle-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            {% if password_error.old_password %}
+            <p class="text-red-500 text-xs mt-1">{{ password_error.old_password.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- New Password -->
+          <div>
+            <label for="new-password" class="form-label">Password Baru</label>
+            <div class="relative">
+              <input type="password" id="new-password" name="new_password1" class="form-input pr-10" required
+                value="{% if password_old %}{{ password_old.new_password1 }}{% endif %}">
+              <button type="button"
+                class="toggle-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">
+              Password minimal 8 karakter, mengandung huruf besar, huruf kecil, dan angka.
+            </p>
+            {% if password_error.new_password1 %}
+            <p class="text-red-500 text-xs mt-1">{{ password_error.new_password1.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Confirm New Password -->
+          <div>
+            <label for="confirm-password" class="form-label">Konfirmasi Password Baru</label>
+            <div class="relative">
+              <input type="password" id="confirm-password" name="new_password2" class="form-input pr-10" required
+                value="{% if password_old %}{{ password_old.new_password2 }}{% endif %}">
+              <button type="button"
+                class="toggle-password absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            {% if password_error.new_password2 %}
+            <p class="text-red-500 text-xs mt-1">{{ password_error.new_password2.0 }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-4">
+            <button type="submit" name="modalBtn" value="updatePassword" class="btn-modern w-full md:w-auto">
+              Perbarui Password
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block scriptsheet %}
+<script>
+  // Profile specific JS
+  document.addEventListener('DOMContentLoaded', function () {
+    // Toggle password visibility
+    const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+    togglePasswordButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const input = this.previousElementSibling;
+        const icon = this.querySelector('i');
+
+        // Toggle input type
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  });
+</script>
+{% endblock scriptsheet %}

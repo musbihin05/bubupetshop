@@ -1,0 +1,274 @@
+{% extends "base.html" %}{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="bg-gray-700 py-10 px-4 relative">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl font-bold text-white mb-2">Peliharaan Anda</h1>
+    <p class="text-white text-lg">Lihat dan kelola semua peliharaan Anda</p>
+  </div>
+  <i class="fas fa-paw absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i>
+</div>
+
+<!-- Booking History Section -->
+<section class="py-16">
+  <div class="container mx-auto px-4 max-w-6xl">
+
+
+    <!-- Filter Controls -->
+    <div class="mb-6 flex flex-wrap justify-between items-center">
+      <div class="flex space-x-2 mb-4 md:mb-0">
+        <button class="btn-modern bg-gray-200 text-gray-700 hover:bg-gray-300 filter-btn active"
+          data-filter="all">Semua</button>
+        {% for key, value in jenis_hewan.items %}
+        <button class="btn-modern bg-gray-200 text-gray-700 hover:bg-gray-300 filter-btn" data-filter="{{ key }}">
+          {{ value }}</button>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn-modern" id="btn-add-peliharaan">
+        <i class="fas fa-plus mr-2"></i> Hewan Baru
+      </button>
+    </div>
+
+    <!-- Peliharaan Table -->
+    <div class="overflow-x-auto bg-white rounded-lg shadow-lg">
+      <table class="booking-table">
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nama Hewan</th>
+            <th>Jenis</th>
+            <th>Umur</th>
+            <th>Berat</th>
+            <th>Keterangan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in peliharaan %}
+          <tr class="peliharaan-row" data-jenis="{{ p.jenis_hewan }}">
+            <td>
+              {% if p.foto_peliharaan %}
+              <img src="{{ p.foto_peliharaan.url }}" alt="{{ p.nama_hewan }}" class="w-16 h-16 object-cover rounded">
+              {% else %}
+              <span class="text-gray-400">Tidak ada foto</span>
+              {% endif %}
+            </td>
+            <td>{{ p.nama_hewan }}</td>
+            <td>{{ p.jenis_hewan }}</td>
+            <td>{{ p.umur_hewan }} tahun</td>
+            <td>{{ p.berat_hewan }} kg</td>
+            <td>{{ p.keterangan|default:"-" }}</td>
+            <td>
+              <button class="text-blue-500 hover:text-blue-700 font-medium edit-btn" data-id="{{ p.id_hewan }}"
+                data-nama="{{ p.nama_hewan }}" data-jenis="{{ p.jenis_hewan }}" data-umur="{{ p.umur_hewan }}"
+                data-berat="{{ p.berat_hewan }}" data-keterangan="{{ p.keterangan }}"
+                data-foto="{% if p.foto_peliharaan %}{{ p.foto_peliharaan.url }}{% endif %}">
+                <i class="fas fa-edit mr-1"></i>
+              </button>
+              <button class="text-red-500 hover:text-red-700 font-medium hapus-btn" data-id="{{ p.id_hewan }}"
+                data-nama="{{ p.nama_hewan }}">
+                <i class="fas fa-trash mr-1"></i>
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-gray-500 py-8">Belum ada peliharaan.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Modal Tambah/Edit Peliharaan -->
+<div id="peliharaanModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 id="modal-title" class="text-xl font-bold">Tambah Peliharaan</h5>
+      <span class="close">&times;</span>
+    </div>
+    <form id="formPeliharaan" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="id_hewan" id="id_hewan">
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">Nama Hewan</label>
+        <input type="text" name="nama_hewan" id="nama_hewan" class="form-input" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">Jenis Hewan</label>
+        <div class="select-wrapper">
+          <select name="jenis_hewan" id="jenis_hewan" class="form-select" required>
+            {% for key, value in jenis_hewan.items %}
+            <option value="{{ key }}">{{ value }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">Umur (tahun)</label>
+        <input type="number" name="umur_hewan" id="umur_hewan" class="form-input" min="0" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">Berat (kg)</label>
+        <input type="number" step="0.01" name="berat_hewan" id="berat_hewan" class="form-input" min="0" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">Keterangan</label>
+        <textarea name="keterangan" id="keterangan" class="form-input" rows="2"></textarea>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 font-medium mb-2">Foto Peliharaan</label>
+        <input type="file" name="foto_peliharaan" id="foto_peliharaan" accept="image/*">
+        <div id="preview-foto" class="mt-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modern bg-gray-300 text-gray-700 mr-2 close-modal">Batal</button>
+        <button type="submit" id="submit-peliharaan" class="btn-modern">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Hapus Peliharaan -->
+<div id="hapusModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="text-xl font-bold">Hapus Peliharaan</h5>
+      <span class="close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <p>Yakin ingin menghapus peliharaan <span id="hapus-nama" class="font-semibold"></span>?</p>
+    </div>
+    <div class="modal-footer">
+      <form id="formHapus" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="id_hewan" id="hapus_id_hewan">
+        <button type="button" class="btn-modern bg-gray-300 text-gray-700 mr-2 close-modal">Batal</button>
+        <button type="submit" id="submit-hapus" class="btn-modern bg-red-500 text-white">Hapus</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block scriptsheet %}
+<script>
+  // Filter functionality
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const peliharaanRows = document.querySelectorAll('.peliharaan-row');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons
+      filterButtons.forEach(btn => btn.classList.remove('active', 'bg-orange-theme', 'text-white'));
+      filterButtons.forEach(btn => btn.classList.add('bg-gray-200', 'text-gray-700'));
+
+      // Add active class to clicked button
+      button.classList.add('active', 'bg-orange-theme', 'text-white');
+      button.classList.remove('bg-gray-200', 'text-gray-700');
+
+      // Get filter value
+      const filterValue = button.getAttribute('data-filter');
+
+      // Filter peliharaan rows
+      peliharaanRows.forEach(row => {
+        if (filterValue === 'all' || row.getAttribute('data-jenis') === filterValue) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Modal logic
+  const peliharaanModal = document.getElementById('peliharaanModal');
+  const hapusModal = document.getElementById('hapusModal');
+  const closeButtons = document.querySelectorAll('.close, .close-modal');
+  const btnAddPeliharaan = document.getElementById('btn-add-peliharaan');
+  const formPeliharaan = document.getElementById('formPeliharaan');
+  const formHapus = document.getElementById('formHapus');
+  const modalTitle = document.getElementById('modal-title');
+  const previewFoto = document.getElementById('preview-foto');
+
+  // Open tambah modal
+  btnAddPeliharaan.addEventListener('click', () => {
+    modalTitle.textContent = 'Tambah Peliharaan';
+    formPeliharaan.reset();
+    previewFoto.innerHTML = '';
+    document.getElementById('id_hewan').value = '';
+    peliharaanModal.style.display = 'block';
+  });
+
+  // Edit modal
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modalTitle.textContent = 'Edit Peliharaan';
+      formPeliharaan.reset();
+      document.getElementById('id_hewan').value = btn.dataset.id;
+      document.getElementById('nama_hewan').value = btn.dataset.nama;
+      document.getElementById('jenis_hewan').value = btn.dataset.jenis;
+      document.getElementById('umur_hewan').value = btn.dataset.umur;
+      document.getElementById('berat_hewan').value = parseFloat(btn.dataset.berat);
+      document.getElementById('keterangan').value = btn.dataset.keterangan || '';
+      previewFoto.innerHTML = btn.dataset.foto ? `<img src="${btn.dataset.foto}" class="w-16 h-16 object-cover rounded">` : '';
+      peliharaanModal.style.display = 'block';
+    });
+  });
+
+  // Hapus modal
+  document.querySelectorAll('.hapus-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('hapus_id_hewan').value = btn.dataset.id;
+      document.getElementById('hapus-nama').textContent = btn.dataset.nama;
+      hapusModal.style.display = 'block';
+    });
+  });
+
+  // Close Modal
+  closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      peliharaanModal.style.display = 'none';
+      hapusModal.style.display = 'none';
+    });
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener('click', (event) => {
+    if (event.target === peliharaanModal) peliharaanModal.style.display = 'none';
+    if (event.target === hapusModal) hapusModal.style.display = 'none';
+  });
+
+  // Preview foto
+  document.getElementById('foto_peliharaan').addEventListener('change', function () {
+    if (this.files && this.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        previewFoto.innerHTML = `<img src="${e.target.result}" class="w-16 h-16 object-cover rounded">`;
+      };
+      reader.readAsDataURL(this.files[0]);
+    } else {
+      previewFoto.innerHTML = '';
+    }
+  });
+
+  // Submit tambah/edit peliharaan
+  formPeliharaan.addEventListener('submit', function (e) {
+    // Default: submit ke backend
+    // Bisa pakai AJAX jika ingin, atau biarkan POST ke view
+  });
+
+  // Submit hapus peliharaan
+  formHapus.addEventListener('submit', function (e) {
+    // Default: submit ke backend
+    // Bisa pakai AJAX jika ingin, atau biarkan POST ke view
+  });
+</script>
+{% endblock scriptsheet %}

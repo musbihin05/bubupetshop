@@ -1,0 +1,153 @@
+{% extends "base.html" %}{% load static %}
+{% load humanize %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gradient-to-r from-purple-500 to-indigo-600 py-10 px-4 relative">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl font-bold text-white mb-2">Semua Layanan</h1>
+    <p class="text-white text-lg">Solusi terbaik untuk perawatan hewan kesayangan Anda</p>
+  </div>
+  <i
+    class="fas fa-concierge-bell absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i>
+</div>
+
+<!-- Services Overview Section -->
+<section class="py-16">
+  <div class="container mx-auto px-4">
+
+    <!-- Grooming Section -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+          <i class="fas fa-cut text-orange-500 mr-3"></i>Layanan Grooming
+        </h2>
+        <a href="{% url 'layanan:layanan_grooming' %}" class="btn-modern px-4 py-2">
+          Lihat Semua<i class="fas fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {% for service in grooming_services %}
+        <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ service.nama_grooming }}</h3>
+            <p class="text-gray-600 mb-4">{{ service.deskripsi_grooming|default:'Layanan grooming
+              profesional'|truncatechars:80 }}</p>
+            <div class="flex justify-between items-center mt-4">
+              <span class="text-xl font-bold text-orange-theme">Rp {{ service.harga_grooming|intcomma }}</span>
+              <a href="{% url 'bookinglayanan:tambah_booking' %}" class="btn-modern px-4 py-2">Booking</a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="col-span-3 text-center text-gray-500">Belum ada layanan grooming tersedia</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Penitipan Section -->
+    <div class="mb-16">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+          <i class="fas fa-home text-blue-500 mr-3"></i>Layanan Penitipan
+        </h2>
+        <a href="{% url 'layanan:layanan_penitipan' %}" class="btn-modern bg-blue-600 hover:bg-blue-700 px-4 py-2">
+          Lihat Semua<i class="fas fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {% for service in penitipan_services %}
+        <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ service.jenis_penitipan }}</h3>
+            <p class="text-gray-600 mb-4">{{ service.deskripsi_penitipan|default:'Layanan penitipan
+              hewan'|truncatechars:80 }}</p>
+            <div class="mt-3 mb-4">
+              <span class="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">{{ service.durasi_penitipan }}
+                jam</span>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+              <span class="text-xl font-bold text-blue-600">Rp {{ service.harga_penitipan|intcomma }}<span
+                  class="text-sm font-normal">/hari</span></span>
+              <a href="{% url 'bookinglayanan:tambah_booking' %}"
+                class="btn-modern bg-blue-600 hover:bg-blue-700 px-4 py-2">Booking</a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="col-span-3 text-center text-gray-500">Belum ada layanan penitipan tersedia</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Kesehatan Section -->
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+          <i class="fas fa-heartbeat text-green-500 mr-3"></i>Layanan Kesehatan
+        </h2>
+        <a href="{% url 'layanan:layanan_kesehatan' %}" class="btn-modern bg-green-600 hover:bg-green-700 px-4 py-2">
+          Lihat Semua<i class="fas fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {% for service in kesehatan_services %}
+        <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+          <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">{{ service.nama_kesehatan }}</h3>
+            <p class="text-gray-600 mb-4">{{ service.deskripsi_kesehatan|default:'Layanan kesehatan oleh dokter
+              hewan'|truncatechars:80 }}</p>
+            <div class="mt-3 mb-4">
+              <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Dokter spesialis</span>
+            </div>
+            <div class="flex justify-between items-center mt-4">
+              <span class="text-xl font-bold text-green-600">Rp {{ service.harga_kesehatan|intcomma }}</span>
+              <a href="{% url 'bookinglayanan:tambah_booking' %}"
+                class="btn-modern bg-green-600 hover:bg-green-700 px-4 py-2">Booking</a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <p class="col-span-3 text-center text-gray-500">Belum ada layanan kesehatan tersedia</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- CTA Banner -->
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl py-12 px-8 mt-16 text-center">
+      <h2 class="text-3xl font-bold text-white mb-4">Butuh bantuan memilih layanan?</h2>
+      <p class="text-white text-lg mb-6">Tim kami siap membantu memberikan saran layanan terbaik untuk hewan kesayangan
+        Anda</p>
+      <a href="#"
+        class="bg-white text-purple-700 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-all duration-300">
+        Hubungi Kami
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock content %}
+{% block scriptsheet %}
+<script>
+  // Animation effects
+  document.addEventListener('DOMContentLoaded', function () {
+    // Card hover effect
+    const cards = document.querySelectorAll('.shadow-lg');
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', function () {
+        this.classList.add('scale-105');
+        this.querySelector('.btn-modern')?.classList.add('scale-110');
+      });
+      card.addEventListener('mouseleave', function () {
+        this.classList.remove('scale-105');
+        this.querySelector('.btn-modern')?.classList.remove('scale-110');
+      });
+    });
+  });
+</script>
+{% endblock scriptsheet %}

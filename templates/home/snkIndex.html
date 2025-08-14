@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gray-700 py-10 px-4 relative">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl font-bold text-white mb-2">Syarat dan Ketentuan</h1>
+    <p class="text-white text-lg">Ditunjukkan untuk seluruh pengguna website pemesanan pelayanan petshop.</p>
+  </div>
+  <i class="fas fa-gavel absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i>
+</div>
+
+<section class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 my-8">
+  <h2 class="text-2xl font-bold mb-4 text-orange-600">Pemesanan</h2>
+  <ul class="list-disc pl-6 space-y-2 text-gray-800">
+    <li>Setiap pemesanan pelayanan akan kami minta kelengkapan data untuk kami proses.</li>
+    <li>Pemesanan kami anggap valid dengan pengisian data dan pembayaran DP / <strong>Booking Fee sebesar 25%</strong>
+      dari total order.</li>
+    <li>Silahkan konfirmasi pembayaran DP Anda ke pihak petshop untuk menghindari kelalaian.</li>
+    <li>Selanjutnya pihak kami akan memberikan konfirmasi ke nomor HP atau Email anda.</li>
+    <li>Update atau perubahan data pelayanan merupakan sepenuhnya hak petshop, dan akan diinformasikan pihak petshop
+      paling lambat 3 jam sebelum jadwal yang telah diisi pada data Booking Customer.</li>
+    <li>Jika pemesanan dalam kurun waktu <strong>6 jam</strong> setelah data di input tidak membayar booking fee maka
+      kami anggap batal.</li>
+    <li>Pemesanan yang telah dibayar akan memiliki status <strong>booking</strong> yang berarti sudah berhasil dipesan.
+    </li>
+  </ul>
+</section>
+
+<section class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 my-8">
+  <h2 class="text-2xl font-bold mb-4 text-orange-600">Perubahan Pemesanan</h2>
+  <ul class="list-disc pl-6 space-y-2 text-gray-800">
+    <li>Perubahan masa sewa paling lambat 1×24 jam.</li>
+    <li>Kami pihak Petshop berhak menyetujui atau tidak setiap perubahan pemesanan.</li>
+    <li>Apabila pemakaian melebihi batas waktu tanpa ada konfirmasi perubahan masa pelayanan akan dikenakan biaya
+      overtime sebesar 10% perjam.</li>
+    <li>Untuk perubahan jam dan alamat paling lambat diinfokan oleh pelanggan 2 jam sebelum pelayanan dilakukan.</li>
+    <li>Perpanjangan masa pelayanan sebaiknya diinfokan 1 x 24 jam.</li>
+    <li>Pihak Petshop berhak menolak perpanjangan masa pelayanan jika ketersediaan sudah habis dipesan.</li>
+  </ul>
+</section>
+
+<section class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 my-8">
+  <h2 class="text-2xl font-bold mb-4 text-orange-600">Pembatalan Pemesanan</h2>
+  <ul class="list-disc pl-6 space-y-2 text-gray-800">
+    <li>Setiap pembatalan pemesanan layanan petshop akan dikenakan biaya <strong>cancel fee</strong> sebesar
+      <strong>25%</strong> dari total sewa.
+    </li>
+    <li>Pembatalan booking tidak akan dikenakan biaya cancel fee dengan syarat dan ketentuan sebagai berikut:
+      <ul class="list-disc pl-6 mt-2 text-gray-700">
+        <li>2x24 Jam sebelum jadwal yang telah dipesan.</li>
+        <li>Pembatalan pelayanan tidak dikenakan cancel fee.</li>
+      </ul>
+    </li>
+  </ul>
+</section>
+
+<section class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8 my-8">
+  <h2 class="text-2xl font-bold mb-4 text-orange-600">Perubahan Harga dan Paket Sewa</h2>
+  <ul class="list-disc pl-6 space-y-2 text-gray-800">
+    <li>Harga dapat berubah dalam kondisi:
+      <ul class="list-disc pl-6 mt-2 text-gray-700">
+        <li>Musim libur</li>
+        <li>Long weekend</li>
+        <li>High &amp; peak season</li>
+      </ul>
+    </li>
+  </ul>
+</section>
+{% endblock content %}

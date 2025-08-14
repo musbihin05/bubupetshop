@@ -1,0 +1,215 @@
+{% extends "base.html" %}{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gray-700 py-10 px-4 relative">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl font-bold text-white mb-2">Katalog Produk</h1>
+    <p class="text-white text-lg">Temukan semua produk berkualitas untuk hewan peliharaan Anda</p>
+  </div>
+  <i class="fas fa-paw absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i>
+</div>
+
+<!-- Product Catalog Section -->
+<section class="py-16">
+  <div class="container mx-auto px-4">
+    <!-- Search and Filter Controls -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+      <div class="w-full md:w-1/3 mb-4 md:mb-0">
+        <div class="search-container">
+          <input type="text" id="product-search" class="search-input" placeholder="Cari produk...">
+          <i class="fas fa-search search-icon"></i>
+        </div>
+      </div>
+      <div class="flex flex-wrap space-x-2">
+        <button class="catalog-filter-btn active" data-filter="all">Semua</button>
+        {% for key, kategori in kategori_produk.items %}
+        <button class="catalog-filter-btn" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10" id="product-grid">
+      {% for produk in produk_list %}
+
+      <a class='produk-data' href="{% url 'produk:detail_produk' produk.id_produk %}">
+
+
+        <div class="product-card group" data-category="{{ produk.kategori }}">
+          <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+            <!-- Badge for stock status -->
+            <div class="relative">
+              {% if produk.stok_produk > 20 %}
+              <span
+                class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Tersedia</span>
+              {% elif produk.stok_produk > 0 %}
+              <span
+                class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">Terbatas</span>
+              {% else %}
+              <span
+                class="absolute top-4 left-4 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Habis</span>
+              {% endif %}
+              <!-- Badge for category -->
+              <span class="absolute top-4 right-4 z-10 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                {{ produk.kategori_label }}</span>
+              <!-- Product Image with Overlay -->
+              <div class="relative overflow-hidden">
+                <img src="{{ produk.gambar_produk.url }}" alt="{{ produk.nama_produk }}"
+                  class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if produk.stok == 0 %}filter grayscale{% endif %}" />
+                <div
+                  class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300 {% if produk.stok == 0 %}opacity-30{% endif %}">
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-6">
+              <h3 class="text-xl font-bold text-gray-800 mb-2">
+                {{ produk.nama_produk }}
+              </h3>
+              <div class="flex justify-between items-center mt-4">
+                <span class="text-xl font-bold text-orange-theme">
+                  {% load humanize %}
+                  Rp {{ produk.harga_produk|intcomma }}
+                </span>
+                <span class="text-sm text-gray-500">Stok:
+                  <span
+                    class="font-semibold {% if produk.stok_produk > 20 %}text-green-600{% elif produk.stok_produk > 0 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ produk.stok_produk }}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- No Results Message (hidden by default) -->
+    <div id="no-results" class="hidden text-center py-8">
+      <i class="fas fa-search text-gray-400 text-5xl mb-3"></i>
+      <h3 class="text-xl font-semibold text-gray-700">Tidak ada produk yang ditemukan</h3>
+      <p class="text-gray-500 mt-2">Coba kata kunci lain atau reset filter</p>
+      <button id="reset-search" class="btn-modern mt-4">Reset Pencarian</button>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center mt-10">
+      <ul class="pagination" id="pagination">
+        <!-- Pagination will be dynamically generated -->
+      </ul>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block scriptsheet %}
+<script>
+  // Catalog Filter, Search, and Pagination functionality
+  const filterButtons = document.querySelectorAll('.catalog-filter-btn');
+  const productCards = Array.from(document.querySelectorAll('.produk-data'));
+  const searchInput = document.getElementById('product-search');
+  const pagination = document.getElementById('pagination');
+  const noResults = document.getElementById('no-results');
+  const resetSearchBtn = document.getElementById('reset-search');
+  const productGrid = document.getElementById('product-grid');
+
+  let currentFilter = 'all';
+  let currentSearch = '';
+  let currentPage = 1;
+  const perPage = 8;
+
+  function getFilteredProducts() {
+    return productCards.filter(card => {
+      // Filter by kategori
+      const kategori = card.querySelector('.product-card').getAttribute('data-category').toLowerCase();
+      const matchFilter = currentFilter === 'all' || kategori === currentFilter;
+      // Filter by search
+      const nama = card.querySelector('h3').textContent.toLowerCase();
+      const matchSearch = nama.includes(currentSearch);
+      return matchFilter && matchSearch;
+    });
+  }
+
+  function renderProducts() {
+    const filtered = getFilteredProducts();
+    // Pagination
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / perPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    // Hide all
+    productCards.forEach(card => card.style.display = 'none');
+    // Show paginated
+    filtered.slice(start, end).forEach(card => card.style.display = 'block');
+    // No results
+    if (filtered.length === 0) {
+      noResults.classList.remove('hidden');
+      productGrid.classList.add('hidden');
+      pagination.innerHTML = '';
+    } else {
+      noResults.classList.add('hidden');
+      productGrid.classList.remove('hidden');
+      renderPagination(totalPages);
+    }
+  }
+
+  function renderPagination(totalPages) {
+    let html = '';
+    for (let i = 1; i <= totalPages; i++) {
+      html += `<li class="page-item${i === currentPage ? ' active' : ''}"><a href="#" class="page-link" data-page="${i}">${i}</a></li>`;
+    }
+    pagination.innerHTML = html;
+    // Add event
+    pagination.querySelectorAll('.page-link').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        currentPage = parseInt(link.getAttribute('data-page'));
+        renderProducts();
+        window.scrollTo({ top: productGrid.offsetTop - 100, behavior: 'smooth' });
+      });
+    });
+  }
+
+  // Filter
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      currentFilter = button.getAttribute('data-filter');
+      currentPage = 1;
+      renderProducts();
+    });
+  });
+
+  // Search
+  searchInput.addEventListener('input', () => {
+    currentSearch = searchInput.value.trim().toLowerCase();
+    currentPage = 1;
+    renderProducts();
+  });
+
+  // Reset search
+  resetSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    currentSearch = '';
+    currentPage = 1;
+    renderProducts();
+  });
+
+  // Animation effect on product cards
+  productCards.forEach(card => {
+    card.addEventListener('mouseenter', function () {
+      this.querySelector('.btn-modern')?.classList.add('scale-110');
+    });
+    card.addEventListener('mouseleave', function () {
+      this.querySelector('.btn-modern')?.classList.remove('scale-110');
+    });
+  });
+
+  // Initial render
+  renderProducts();
+</script>
+{% endblock scriptsheet %}

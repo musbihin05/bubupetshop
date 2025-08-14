@@ -1,0 +1,170 @@
+{% extends "base.html" %}{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="bg-gray-700 py-10 px-4 relative">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl font-bold text-white mb-2">Booking Layanan</h1>
+    <p class="text-white text-lg">Isi formulir di bawah ini untuk reservasi layanan</p>
+  </div>
+  <i
+    class="fas fa-calendar-check absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i>
+</div>
+
+<!-- Booking Form Section -->
+<section class="py-16">
+  <div class="container mx-auto px-4 max-w-4xl">
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-lg p-8 card-shadow">
+      <form id="bookingForm" method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Pet Selection -->
+        <div class="mb-6">
+          <label for="pet" class="form-label">Pilih Peliharaan <span class="text-red-500">*</span></label>
+          <div class="select-wrapper">
+            <select id="pet" name="id_hewan" class="form-select" required>
+              <option value="" disabled selected>-- Pilih Hewan Peliharaan --</option>
+              {% for pet in peliharaan %}
+              <option value="{{ pet.id_hewan }}">{{ pet.nama_hewan }} ({{ pet.jenis_hewan }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Service Type Selection -->
+        <div class="mb-6">
+          <label for="service-type" class="form-label">Tipe Layanan <span class="text-red-500">*</span></label>
+          <div class="select-wrapper">
+            <select id="service-type" name="tipe_layanan" class="form-select" required>
+              <option value="" disabled selected>-- Pilih Tipe Layanan --</option>
+              {% for key, value in tipe_layanan.items %}
+              <option value="{{ key }}">{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Service Selection -->
+        <div class="mb-6">
+          <label for="service" class="form-label">Layanan <span class="text-red-500">*</span></label>
+          <div class="select-wrapper">
+            <select id="service" name="layanan" class="form-select" required disabled>
+              <option value="" disabled selected>-- Pilih Layanan --</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Date and Time -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label for="booking-date" class="form-label">Tanggal Booking <span class="text-red-500">*</span></label>
+            <input type="datetime-local" id="booking-date" name="tanggal" class="form-input" required>
+          </div>
+          <div>
+            <label for="booking-time" class="form-label">Durasi Booking Penitipan <span
+                class="text-xs text-gray-500">(Harga x hari)</span><span class="text-red-500">*</span></label>
+            <input type="number" id="booking-time" name="durasi" class="form-input" min="1" required disabled
+              placeholder="Masukkan durasi dalam hari">
+          </div>
+        </div>
+
+        <!-- Notes Textarea -->
+        <div class="mb-8">
+          <label for="notes" class="form-label">Catatan Booking</label>
+          <textarea id="notes" name="catatan" class="form-input min-h-[120px] resize-y"
+            placeholder="Tuliskan catatan atau kebutuhan khusus untuk layanan Anda..."></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center">
+          <button type="submit" class="btn-modern px-8 py-3">
+            <i class="fas fa-calendar-check mr-2"></i> Booking Sekarang
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock content %}
+{% block scriptsheet %}
+<script>
+  // Dynamic service selection based on service type from Django context
+  const serviceTypeSelect = document.getElementById('service-type');
+  const serviceSelect = document.getElementById('service');
+  const durasiInput = document.getElementById('booking-time');
+  const layanan = {{ layanan | safe }};
+
+  // Function to handle service type change
+  function handleServiceTypeChange(selectedType) {
+    serviceSelect.innerHTML = '<option value="" disabled selected>-- Pilih Layanan --</option>';
+    serviceSelect.disabled = false;
+    // Durasi hanya aktif untuk penitipan
+    if (selectedType === 'sitting') {
+      durasiInput.disabled = false;
+      durasiInput.required = true;
+    } else {
+      durasiInput.disabled = true;
+      durasiInput.required = false;
+      durasiInput.value = '';
+    }
+    if (selectedType && layanan[selectedType]) {
+      layanan[selectedType].forEach(function (item) {
+        // Pastikan hanya append jika id dan nama_layanan ada
+        if (item.id && item.nama_layanan) {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.nama_layanan + ' (Rp. ' + item.harga + ')';
+          serviceSelect.appendChild(option);
+        }
+      });
+    } else {
+      serviceSelect.disabled = true;
+    }
+  }
+
+  // Add event listener for service type change
+  serviceTypeSelect.addEventListener('change', function () {
+    handleServiceTypeChange(this.value);
+  });
+
+  // Parse URL parameters to auto-select service type and service
+  function getUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      tipe: params.get('tipe'),
+      id: params.get('id')
+    };
+  }
+
+  // Auto-select based on parameters from context
+  document.addEventListener('DOMContentLoaded', function () {
+    // Check if we have auto-select parameters from Django context
+    const autoTipe = "{{ auto_tipe }}";
+    const autoId = "{{ auto_id }}";
+
+    if (autoTipe && autoId) {
+      // Set service type
+      serviceTypeSelect.value = autoTipe;
+
+      // Trigger change to load services
+      handleServiceTypeChange(autoTipe);
+
+      // Wait a short moment to ensure options are loaded
+      setTimeout(() => {
+        // Find and select the service by ID
+        const options = serviceSelect.querySelectorAll('option');
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].value == autoId) {
+            serviceSelect.value = autoId;
+            break;
+          }
+        }
+      }, 100);
+    }
+  });
+</script>
+{% endblock scriptsheet %}

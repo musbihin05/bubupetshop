@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Laporan Riwayat Penjualan</title>
+  <style>
+    @page {
+      size: landscape;
+      margin: 1cm;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      color: #333;
+      width: 100%;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #FF8C00;
+      padding-bottom: 10px;
+      width: 100%;
+    }
+
+    .logo {
+      max-width: 100px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #FF8C00;
+      margin: 5px 0;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 5px 0;
+    }
+
+    h3 {
+      font-size: 16px;
+      color: #666;
+      margin: 5px 0;
+    }
+
+    .date {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      table-layout: auto;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    /* Kolom ID - minimal */
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    /* Status - minimal */
+    th:nth-child(5),
+    td:nth-child(5) {
+      white-space: nowrap;
+    }
+
+    /* Total - rata kanan */
+    th:nth-child(6),
+    td:nth-child(6) {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #f8f8f8;
+      font-weight: bold;
+      color: #FF8C00;
+      border-bottom: 2px solid #FF8C00;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .status-completed {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .status-cancelled {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    .summary {
+      margin-top: 20px;
+      text-align: right;
+      padding-right: 5%;
+    }
+
+    .summary p {
+      font-weight: bold;
+      margin: 5px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1>Bubu Petshop</h1>
+    <h2>Laporan Riwayat Penjualan</h2>
+    {% if tanggal_awal and tanggal_akhir %}
+    <h3>Periode: {{ tanggal_awal|date:"d F Y" }} s/d {{ tanggal_akhir|date:"d F Y" }}</h3>
+    {% elif tanggal_awal %}
+    <h3>Periode: Dari {{ tanggal_awal|date:"d F Y" }}</h3>
+    {% elif tanggal_akhir %}
+    <h3>Periode: Sampai {{ tanggal_akhir|date:"d F Y" }}</h3>
+    {% else %}
+    <h3>Periode: Semua Data</h3>
+    {% endif %}
+    <p class="date">Dicetak pada: {% now "l, d F Y H:i" %}</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tanggal</th>
+        <th>Pelanggan</th>
+        <th>Layanan</th>
+        <th>Status</th>
+        <th style="text-align: right;">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in data %}
+      <tr>
+        <td>{{ item.id_penjualan }}</td>
+        <td>{{ item.tanggal_penjualan|date:"d M Y H:i" }}</td>
+        <td>{{ item.pelanggan }}</td>
+        <td>{{ item.layanan }}</td>
+        <td>
+          {% if item.status == 'completed' %}
+          <span class="status-completed">Selesai</span>
+          {% elif item.status == 'cancelled' %}
+          <span class="status-cancelled">Dibatalkan</span>
+          {% else %}
+          {{ item.status }}
+          {% endif %}
+        </td>
+        <td style="text-align: right;">{{ item.total_penjualan_rupiah }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="summary">
+    <p>Total Penjualan: {{ data.count }} transaksi</p>
+    <p>Total Pendapatan: {{ total_pendapatan_rupiah }}</p>
+  </div>
+
+  <div class="footer">
+    <p>© {% now "Y" %} Bubu Petshop. Semua hak dilindungi.</p>
+  </div>
+</body>
+
+</html>

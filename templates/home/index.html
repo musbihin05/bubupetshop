@@ -1,0 +1,251 @@
+{% extends 'base.html' %} {% load static %} {% block title %} {{ title }}
+{% endblock title %} {% block content %}
+
+
+
+<!-- Hero Section -->
+<section id="home" class="relative bg-cover bg-center h-screen flex items-center justify-center text-white"
+  style="background-image: url('{% static 'base-img/header.png' %}')">
+  <div class="absolute inset-0 bg-black opacity-50"></div>
+  <div class="relative z-10 text-center p-4 w-full max-w-4xl mx-auto">
+    <h1 class="text-3xl sm:text-4xl md:text-6xl font-extrabold leading-tight mb-4 animate-fade-in relative"
+      style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8)">
+      <span class="inline-block pb-2 relative">
+        Selamat Datang
+        <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-1 bg-orange-theme"></span>
+      </span>
+    </h1>
+    <p class="text-base sm:text-lg md:text-xl mb-8 animate-fade-in animation-delay-200"
+      style="text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9)">
+      Layanan petshop menjadi lebih mudah dan terpercaya dengan Bubu Petshop.
+      Booking layanan kesehatan, grooming, dan penitipan hewan peliharaan Anda
+      hanya dengan beberapa klik.
+    </p>
+  </div>
+</section>
+
+<!-- Services Section -->
+<section id="layanan" class="py-16 bg-gray-50 mt-12">
+  <div class="container mx-auto px-4">
+    <h2 class="text-4xl font-bold text-center text-orange-theme mb-12 relative">
+      <span class="inline-block pb-2 relative">
+        Layanan Kami
+        <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
+      </span>
+      <i class="fas fa-paw absolute -top-6 -right-6 text-orange-theme opacity-80 text-5xl"></i>
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Service 1: Kesehatan Hewan -->
+      <div
+        class="bg-white rounded-xl shadow-lg p-8 text-center card-shadow transform transition-transform duration-300 hover:scale-105">
+        <img src="{% static 'base-img/layanan/image kesehatan.jpg' %}" alt="Kesehatan Hewan"
+          class="w-full h-48 object-cover rounded-lg mb-6" />
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+          Kesehatan Hewan
+        </h3>
+        <p class="text-gray-600 leading-relaxed mb-6">
+          Dokter hewan di Bubu Petshop siap ke rumah/apartemen Anda. Layanan
+          dokter hewan tersedia untuk hewan peliharaan dan ternak. Dokter hewan
+          kami memiliki sertifikat resmi, berpengalaman & terpercaya.
+        </p>
+        <a href="{% url 'layanan:layanan_kesehatan' %}" class="btn-modern"> Lihat Selengkapnya </a>
+      </div>
+
+      <!-- Service 2: Penitipan Hewan -->
+      <div
+        class="bg-white rounded-xl shadow-lg p-8 text-center card-shadow transform transition-transform duration-300 hover:scale-105">
+        <img src="{% static 'base-img/layanan/image penitipan hewan.jpg' %}" alt="Penitipan Hewan"
+          class="w-full h-48 object-cover rounded-lg mb-6" />
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+          Penitipan Hewan
+        </h3>
+        <p class="text-gray-600 leading-relaxed mb-6">
+          Layanan penitipan hewan premium dengan fasilitas lengkap dan nyaman.
+          Kami menjamin hewan peliharaan Anda akan mendapatkan perawatan terbaik
+          selama Anda berpergian atau sibuk beraktivitas.
+        </p>
+        <a href="{% url 'layanan:layanan_penitipan' %}" class="btn-modern"> Lihat Selengkapnya </a>
+      </div>
+
+      <!-- Service 3: Grooming -->
+      <div
+        class="bg-white rounded-xl shadow-lg p-8 text-center card-shadow transform transition-transform duration-300 hover:scale-105">
+        <img src="{% static 'base-img/layanan/image grooming.jpeg' %}" alt="Grooming Hewan"
+          class="w-full h-48 object-cover rounded-lg mb-6" />
+        <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+          Grooming Hewan
+        </h3>
+        <p class="text-gray-600 leading-relaxed mb-6">
+          Layanan grooming profesional dengan peralatan dan produk terbaik.
+          Jadikan hewan peliharaan Anda tampil bersih, wangi, dan sehat.
+          Tersedia berbagai paket grooming sesuai kebutuhan.
+        </p>
+        <a href="{% url 'layanan:layanan_grooming' %}" class="btn-modern"> Lihat Selengkapnya </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Catalog Section -->
+<section id="katalog" class="py-16 bg-white mt-12">
+  <div class="container mx-auto px-4">
+    <h2 class="text-3xl md:text-4xl text-center font-bold text-orange-theme mb-12 relative fancy-title">
+      <span class="inline-block pb-2 relative">
+        Katalog Produk
+        <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
+      </span>
+      <i
+        class="fas fa-box-open absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+    </h2>
+
+    <!-- Product Filter Tabs -->
+    <div class="flex flex-wrap justify-center mb-8">
+      <button class="catalog-filter-btn active" data-filter="all">Semua</button>
+      {% for key, kategori in kategori_produk.items %}
+      <button class="catalog-filter-btn" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
+      {% endfor %}
+    </div>
+
+    <!-- Product Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for produk in produk_list %}
+      <a class='produk-data' href="{% url 'produk:detail_produk' produk.id_produk %}">
+        <div class="product-card group" data-category="{{ produk.kategori }}">
+          <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+            <!-- Badge for stock status -->
+            <div class="relative">
+              {% if produk.stok_produk > 20 %}
+              <span
+                class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Tersedia</span>
+              {% elif produk.stok_produk > 0 %}
+              <span
+                class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">Terbatas</span>
+              {% else %}
+              <span
+                class="absolute top-4 left-4 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Habis</span>
+              {% endif %}
+              <!-- Badge for category -->
+              <span class="absolute top-4 right-4 z-10 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                {{ produk.kategori_label }}</span>
+              <!-- Product Image with Overlay -->
+              <div class="relative overflow-hidden">
+                <img src="{{ produk.gambar_produk.url }}" alt="{{ produk.nama_produk }}"
+                  class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if produk.stok == 0 %}filter grayscale{% endif %}" />
+                <div
+                  class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300 {% if produk.stok == 0 %}opacity-30{% endif %}">
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-6">
+              <h3 class="text-xl font-bold text-gray-800 mb-2">
+                {{ produk.nama_produk }}
+              </h3>
+              <div class="flex justify-between items-center mt-4">
+                <span class="text-xl font-bold text-orange-theme">
+                  {% load humanize %}
+                  Rp {{ produk.harga_produk|intcomma }}
+                </span>
+                <span class="text-sm text-gray-500">Stok:
+                  <span
+                    class="font-semibold {% if produk.stok_produk > 20 %}text-green-600{% elif produk.stok_produk > 0 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ produk.stok_produk }}</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- View More Button -->
+    <div class="mt-12 text-center">
+      <a href="{% url 'produk:index' %}" class="btn-modern px-8 py-3">
+        Lihat Semua Produk <i class="fas fa-arrow-right ml-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-16">
+  <div class="container mx-auto px-4 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-orange-theme mb-8 relative fancy-title">
+      <span class="inline-block pb-2 relative">
+        Tentang Kami
+        <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
+      </span>
+      <i
+        class="fas fa-store absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+    </h2>
+    <p class="text-gray-600 text-lg max-w-3xl mx-auto">
+      Bubu Petshop adalah platform booking terdepan untuk layanan perawatan
+      hewan peliharaan. Kami menghubungkan pemilik hewan dengan layanan
+      profesional untuk kesehatan, grooming, dan penitipan hewan. Semua layanan
+      dapat dengan mudah dipesan melalui platform kami untuk kenyamanan Anda.
+    </p>
+  </div>
+</section>
+
+
+<section id="lokasi" class="py-16 bg-gray-50">
+  <div class="container mx-auto px-4 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-orange-theme mb-8 relative fancy-title">
+      <span class="inline-block pb-2 relative">
+        Lokasi Kami
+        <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
+      </span>
+      <i
+        class="fas fa-map-marker-alt absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i>
+    </h2>
+    <div class="flex justify-center">
+      <div class="relative w-full max-w-3xl h-96 rounded-lg overflow-hidden shadow-lg">
+        {{ detail_petcare.maps_petcare|safe }}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock content %} {% block scriptsheet %}
+
+
+<script>
+  // Page-specific JavaScript
+
+  // Catalog Filter functionality
+  const filterButtons = document.querySelectorAll('.catalog-filter-btn');
+  const productData = document.querySelectorAll('.produk-data');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      const filterValue = button.getAttribute('data-filter');
+      productData.forEach(card => {
+        if (filterValue === 'all') {
+          card.style.display = 'block';
+        } else {
+          if (card.children[0].getAttribute('data-category') === filterValue) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        }
+      });
+    });
+  });
+
+  // Add animation effect on product cards
+  productData.forEach(card => {
+    card.addEventListener('mouseenter', function () {
+      this.querySelector('.btn-modern')?.classList.add('scale-110');
+    });
+    card.addEventListener('mouseleave', function () {
+      this.querySelector('.btn-modern')?.classList.remove('scale-110');
+    });
+  });
+
+
+</script>
+{% endblock scriptsheet %}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ title }}{% endblock title %}
+{% block content %}
+<div class="container mx-auto py-16 px-4 max-w-2xl">
+  <div class="bg-white rounded-xl shadow-lg p-8 card-shadow">
+    <h2 class="text-3xl font-bold text-orange-theme mb-6 text-center">Informasi Pembayaran</h2>
+    <div class="mb-6 text-center">
+      <div class="mb-2">
+        <span class="font-semibold">ID Booking:</span>
+        <span class="text-orange-theme font-bold">#{{ booking.id_booking }}</span>
+      </div>
+      <div class="mb-2">
+        <span class="font-semibold">Layanan:</span>
+        <span class="text-orange-theme font-bold">{{ booking.jenis_layanan }}</span>
+        <span class="text-gray-600">({{ booking.layanan }})</span>
+      </div>
+      <p class="text-lg">Silakan lakukan pembayaran sebesar:</p>
+      {% load humanize %}
+      <div class="text-2xl font-bold text-orange-theme mb-2">Rp {{ totalBayar|intcomma }}</div>
+      <div class="mb-2">ke rekening berikut:</div>
+
+      <div class="bg-gray-100 rounded-lg p-4 mb-2">
+        <div class="font-bold text-lg">({{ detail_petcare.nama_bank|upper }}) {{ detail_petcare.rekening_petcare }}
+        </div>
+        <div class="text-md">a.n. {{ detail_petcare.pemilik_rekening }}</div>
+      </div>
+      <div class="text-md text-gray-600 mb-2">Setelah pembayaran, tim kami akan menghubungi Anda untuk konfirmasi.</div>
+    </div>
+    <hr class="my-6">
+    <h3 class="text-xl font-semibold mb-2">Hal yang perlu diperhatikan:</h3>
+    <ul class="list-disc pl-6 text-gray-700 mb-6">
+      <li>Rekening yang dipakai membayar harus sesuai dengan yang telah diinputkan sebelumnya.</li>
+      <li>Anda harus membayar DP ini sebelum <strong>12 jam</strong> berlalu.</li>
+      <li>Setelah dibayar detail pesanan tidak dapat diubah.</li>
+      <li>Baca ketentuan lainnya di <a href="{% url 'syaratdanketentuan:index' %}"
+          class="text-orange-theme underline">Ketentuan
+          Layanan</a></li>
+    </ul>
+    <div class="text-center">
+      <a href="{% url 'bookinglayanan:index' %}" class="btn-modern px-8 py-3">Konfirmasi</a>
+    </div>
+  </div>
+</div>
+{% endblock content %}

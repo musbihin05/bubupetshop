@@ -1,0 +1,771 @@
+{% extends "base.html" %}{% load static %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="bg-gray-700 py-10 px-4 relative">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl font-bold text-white mb-2">Riwayat Booking</h1>
+    <p class="text-white text-lg">Lihat dan kelola semua riwayat booking layanan Anda</p>
+  </div>
+  <i
+    class="fas fa-history absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i>
+</div>
+
+<!-- Booking History Section -->
+<section class="py-16">
+  <div class="container mx-auto px-4 max-w-6xl">
+    <!-- Filter Controls -->
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div class="flex flex-wrap gap-2">
+        <button class="btn-modern bg-gray-200 text-gray-700 hover:bg-gray-300 filter-btn active"
+          data-filter="all">Semua</button>
+        {% for key, value in status.items %}
+        <button class="btn-modern bg-gray-200 text-gray-700 hover:bg-gray-300 filter-btn" data-filter="{{ key }}">
+          {{ value }}</button>
+        {% endfor %}
+      </div>
+      <a href="{% url 'bookinglayanan:tambah_booking' %}"
+        class="btn-modern bg-orange-500 hover:bg-orange-600 text-white">
+        <i class="fas fa-plus mr-2"></i> Booking Baru
+      </a>
+    </div>
+
+    <!-- Booking Cards for Mobile -->
+    <div class="md:hidden">
+      {% for b in bookings %}
+      <div class="booking-row mb-4 bg-white rounded-lg shadow-md overflow-hidden" data-status="{{ b.status_booking }}">
+        <div class="p-4 border-b border-gray-100">
+          <div class="flex justify-between items-center mb-2">
+            <div class="font-bold text-lg">#BK-{{ b.id_booking }}</div>
+            <span class="badge badge-{{ b.status_booking }} text-xs">
+              {{ b.status_booking }}
+            </span>
+          </div>
+          <div class="text-sm text-gray-600">{{ b.tanggal_booking|date:"d M Y" }}</div>
+        </div>
+
+        <div class="p-4 space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Hewan:</span>
+            <span class="font-medium text-right">{{ b.id_hewan.nama_hewan }}</span>
+          </div>
+
+          <div class="flex justify-between">
+            <span class="text-gray-600">Layanan:</span>
+            <span class="font-medium text-right">
+              {% if b.tipe_layanan == 'grooming' and b.booking_grooming %}
+              Grooming - {{ b.booking_grooming.nama_grooming }}
+              {% elif b.tipe_layanan == 'sitting' and b.booking_penitipan %}
+              Penitipan - {{ b.booking_penitipan.jenis_penitipan }}
+              {% elif b.tipe_layanan == 'medical' and b.booking_kesehatan %}
+              Kesehatan - {{ b.booking_kesehatan.nama_kesehatan }}
+              {% else %}
+              {{ b.tipe_layanan|capfirst }}
+              {% endif %}
+            </span>
+          </div>
+
+          {% if b.durasi_layanan %}
+          <div class="flex justify-between">
+            <span class="text-gray-600">Durasi:</span>
+            <span class="font-medium">{{ b.durasi_layanan }} hari</span>
+          </div>
+          {% endif %}
+
+          <div class="flex justify-between border-t border-gray-100 pt-2 mt-3">
+            <span class="text-gray-600">Pembayaran:</span>
+            {% if b.bukti_pembayaran %}
+            {% load humanize %}
+            <span class="font-medium text-green-600">Rp {{ b.harga_booking|intcomma }}</span>
+            {% else %}
+            <span class="font-medium text-orange-600">Rp {{ b.harga_booking|intcomma }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-3 flex flex-wrap gap-2 justify-end">
+          {% if b.status_booking == 'pending' %}
+          <a class="text-blue-500 hover:text-blue-700 font-medium flex items-center"
+            href="{% url 'bookinglayanan:detail_pembayaran' b.id_booking %}">
+            <i class="fas fa-info-circle mr-1"></i> Info Pembayaran
+          </a>
+
+          <button class="text-blue-500 hover:text-blue-700 font-medium upload-btn flex items-center"
+            data-layanan="{% if b.tipe_layanan == 'grooming' and b.booking_grooming %}Grooming - {{ b.booking_grooming.nama_grooming }}{% elif b.tipe_layanan == 'sitting' and b.booking_penitipan %}Penitipan - {{ b.booking_penitipan.jenis_penitipan }}{% elif b.tipe_layanan == 'medical' and b.booking_kesehatan %}Kesehatan - {{ b.booking_kesehatan.nama_kesehatan }}{% else %}{{ b.tipe_layanan|capfirst }}{% endif %}"
+            data-booking="BK-{{ b.id_booking }}" data-amount="{{ b.harga_booking|floatformat:0 }}">
+            <i class="fas fa-upload mr-1"></i> Bukti Bayar
+          </button>
+          {% endif %}
+
+          <button class="text-green-500 hover:text-green-700 font-medium detail-btn flex items-center"
+            data-booking="BK-{{ b.id_booking }}">
+            <i class="fas fa-eye mr-1"></i> Detail
+          </button>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center py-8 bg-white rounded-lg shadow-md">
+        <i class="fas fa-calendar-times text-gray-400 text-4xl mb-3"></i>
+        <p class="text-gray-500">Belum ada riwayat booking.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Booking Table for Desktop -->
+    <div class="hidden md:block overflow-x-auto bg-white rounded-lg shadow-lg">
+      <table class="booking-table w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left">No. Booking</th>
+            <th class="px-4 py-3 text-left">Tanggal Selesai</th>
+            <th class="px-4 py-3 text-left">Durasi</th>
+            <th class="px-4 py-3 text-left">Hewan</th>
+            <th class="px-4 py-3 text-left">Layanan</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">Pembayaran</th>
+            <th class="px-4 py-3 text-left">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr class="booking-row border-b border-gray-100 hover:bg-gray-50" data-status="{{ b.status_booking }}">
+            <td class="px-4 py-3">
+              <div class="font-semibold">#BK-{{ b.id_booking }}</div>
+              <div class="text-xs text-gray-500">{{ b.tanggal_booking|date:"d M Y" }}</div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="font-medium">
+                {% if b.tanggal_selesai %}
+                {{ b.tanggal_selesai|date:"d M Y" }}
+                {% else %}
+                -
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="font-medium">
+                {% if b.durasi_layanan %}
+                {{ b.durasi_layanan }} hari
+                {% else %}
+                -
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="font-medium">{{ b.id_hewan.nama_hewan }}</div>
+              <div class="text-xs text-gray-500">{{ b.id_hewan.jenis_hewan }} ({{ b.id_hewan.berat_hewan }} kg)</div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="font-medium">
+                {% if b.tipe_layanan == 'grooming' and b.booking_grooming %}
+                Grooming
+                <div class="text-xs text-gray-500">{{ b.booking_grooming.nama_grooming }}</div>
+                {% elif b.tipe_layanan == 'sitting' and b.booking_penitipan %}
+                Penitipan
+                <div class="text-xs text-gray-500">{{ b.booking_penitipan.jenis_penitipan }}</div>
+                {% elif b.tipe_layanan == 'medical' and b.booking_kesehatan %}
+                Kesehatan
+                <div class="text-xs text-gray-500">{{ b.booking_kesehatan.nama_kesehatan }}</div>
+                {% else %}
+                {{ b.tipe_layanan|capfirst }}
+                {% endif %}
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <span class="badge badge-{{ b.status_booking }}">
+                {{ b.status_booking }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              {% if b.bukti_pembayaran %}
+              <div class="text-xs text-green-600 font-medium">Sudah Bayar</div>
+              {% load humanize %}
+              <div class="text-sm text-green-600 font-bold">Rp {{ b.harga_booking|intcomma }}</div>
+              {% else %}
+              <div class="text-xs text-gray-500 font-medium">Belum Bayar</div>
+              <div class="text-sm text-orange-600 font-bold">Rp {{ b.harga_booking|intcomma }}</div>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex flex-col gap-1">
+                {% if b.status_booking == 'pending' %}
+                <a class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center transition-colors"
+                  href="{% url 'bookinglayanan:detail_pembayaran' b.id_booking %}">
+                  <i class="fas fa-info-circle mr-1"></i> Info Pembayaran
+                </a>
+                <button
+                  class="text-blue-600 hover:text-blue-800 font-medium text-sm flex items-center transition-colors upload-btn"
+                  data-layanan="{{ b.tipe_layanan }}" data-booking="BK-{{ b.id_booking }}"
+                  data-amount="{{ b.harga_booking|floatformat:0 }}">
+                  <i class="fas fa-upload mr-1"></i> Bukti Bayar
+                </button>
+                {% endif %}
+                <button
+                  class="text-green-600 hover:text-green-800 font-medium text-sm flex items-center transition-colors detail-btn"
+                  data-booking="BK-{{ b.id_booking }}">
+                  <i class="fas fa-eye mr-1"></i> Detail
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="8" class="text-center text-gray-500 py-8">
+              <i class="fas fa-calendar-times text-gray-400 text-4xl mb-3"></i>
+              <p>Belum ada riwayat booking.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Payment Upload Modal -->
+<div id="paymentModal" class="modal">
+  <div class="modal-content max-w-md w-full mx-auto">
+    <div class="modal-header bg-gray-50 border-b border-gray-200 rounded-t-lg">
+      <h5 class="text-xl font-bold text-gray-800">Upload Bukti Pembayaran</h5>
+      <span class="close text-2xl text-gray-500 hover:text-gray-800 transition-colors">&times;</span>
+    </div>
+    <div class="modal-body py-6">
+      <form id="paymentForm" method="POST" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="booking_id" id="form-booking-id">
+        <input type="hidden" name="upload_bukti" value="1">
+
+        <div class="bg-orange-50 border border-orange-100 rounded-lg p-4 mb-4">
+          <div class="flex items-start space-x-3 mb-2">
+            <i class="fas fa-info-circle text-orange-500 mt-1"></i>
+            <div>
+              <div class="font-medium text-gray-800">Informasi Pembayaran</div>
+              <p class="text-sm text-gray-600">Silahkan transfer sesuai jumlah di bawah ini</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-sm">
+            <div class="text-gray-600">No. Booking:</div>
+            <div id="booking-number" class="font-medium text-right"></div>
+
+            <div class="text-gray-600">Layanan:</div>
+            <div id="booking-service" class="font-medium text-right"></div>
+
+            <div class="text-gray-600">Total Pembayaran:</div>
+            <div class="text-right">
+              <span id="booking-amount" class="font-bold text-orange-600"></span>
+              <span id="booking-note" class="text-xs text-gray-500 block"></span>
+            </div>
+
+            <div class="text-gray-600">No. Rekening:</div>
+            <div class="font-bold text-orange-600 text-right">
+              {{ detail_petcare.rekening_petcare }} {{ detail_petcare.nama_bank }}
+              ({{ detail_petcare.pemilik_rekening }})</div>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="block text-gray-700 font-medium text-sm">Upload Bukti Transfer</label>
+          <div
+            class="relative border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-orange-300 transition-colors">
+            <input type="file" id="payment-proof" name="bukti_pembayaran" accept="image/*" required
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+            <div class="space-y-2">
+              <i class="fas fa-cloud-upload-alt text-3xl text-gray-400"></i>
+              <div class="text-sm font-medium text-gray-600">Klik atau drag & drop file di sini</div>
+              <div id="file-name" class="text-xs text-gray-500">Belum ada file dipilih</div>
+            </div>
+          </div>
+          <div id="preview-payment" class="mt-2 flex justify-center"></div>
+          <p class="text-xs text-gray-500">Format file: JPG, PNG, atau PDF. Maksimal 5MB.</p>
+        </div>
+
+        <div>
+          <label class="block text-gray-700 font-medium text-sm mb-1">Catatan (Opsional)</label>
+          <textarea
+            class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-orange-200 focus:border-orange-400 outline-none transition-all"
+            name="catatan_bayar" rows="2" placeholder="Tambahkan catatan jika diperlukan..."></textarea>
+        </div>
+
+        <div
+          class="modal-footer bg-gray-50 border-t border-gray-200 mt-4 -mx-6 -mb-6 p-4 rounded-b-lg flex justify-end space-x-2">
+          <button type="button"
+            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition-colors font-medium close-modal">
+            Batal
+          </button>
+          <button type="submit" id="submit-payment"
+            class="px-4 py-2 btn-modern text-white rounded-md transition-colors font-medium">
+            <i class="fas fa-upload mr-1"></i> Upload Bukti
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="detailModal" class="modal">
+  <div class="modal-content max-w-md w-full mx-auto">
+    <div class="modal-header bg-gray-50 border-b border-gray-200 rounded-t-lg">
+      <h5 class="text-xl font-bold text-gray-800">Detail Booking</h5>
+      <span class="close text-2xl text-gray-500 hover:text-gray-800 transition-colors">&times;</span>
+    </div>
+    <div class="modal-body py-6" id="detail-content">
+      <!-- Content will be populated dynamically -->
+    </div>
+    <div class="modal-footer bg-gray-50 border-t border-gray-200 rounded-b-lg">
+      <button type="button" class="btn-modern bg-orange-500 hover:bg-orange-600 text-white close-modal">Tutup</button>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block scriptsheet %}
+<style>
+  /* Badge styles */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .badge-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-process {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+
+  .badge-completed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  .badge-canceled {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  /* Filter button active state */
+  .filter-btn.active {
+    background-color: #f97316;
+    color: white;
+  }
+
+  /* Modal styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    /* Higher z-index to appear above navbar */
+    display: none;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 1rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 32rem;
+    overflow: hidden;
+    margin: 10vh auto auto;
+    /* Add top margin to position below navbar */
+    max-height: 85vh;
+    /* Reduce height slightly to ensure it fits */
+    overflow-y: auto;
+    position: relative;
+  }
+
+  /* Improve mobile modal display */
+  @media (max-width: 640px) {
+    .modal {
+      padding: 0.5rem;
+      align-items: flex-start;
+      /* Align to top on mobile */
+    }
+
+    .modal-content {
+      max-width: 95%;
+      margin: 15vh auto auto;
+      /* Increase top margin on mobile to avoid navbar */
+      max-height: 80vh;
+      /* Reduce height on mobile */
+    }
+
+    .modal-body {
+      padding: 0 0.75rem 0.75rem;
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .modal-body {
+    padding: 0 1rem 1rem;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+</style>
+<script>
+
+  // Filter functionality
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const bookingRows = document.querySelectorAll('.booking-row');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Remove active class from all buttons
+      filterButtons.forEach(btn => btn.classList.remove('active', 'bg-orange-theme', 'text-white'));
+      filterButtons.forEach(btn => btn.classList.add('bg-gray-200', 'text-gray-700'));
+
+      // Add active class to clicked button
+      button.classList.add('active', 'bg-orange-theme', 'text-white');
+      button.classList.remove('bg-gray-200', 'text-gray-700');
+
+      // Get filter value
+      const filterValue = button.getAttribute('data-filter');
+
+      // Filter booking rows
+      bookingRows.forEach(row => {
+        if (filterValue === 'all') {
+          row.style.display = '';
+        } else {
+          if (row.getAttribute('data-status') === filterValue) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        }
+      });
+    });
+  });
+
+  // Modal functionality
+  const paymentModal = document.getElementById('paymentModal');
+  const detailModal = document.getElementById('detailModal');
+  const closeButtons = document.querySelectorAll('.close, .close-modal');
+
+  // Payment Modal
+  const uploadButtons = document.querySelectorAll('.upload-btn');
+  const bookingNumber = document.getElementById('booking-number');
+  const bookingAmount = document.getElementById('booking-amount');
+  const bookingService = document.getElementById('booking-service');
+  const bookingNote = document.getElementById('booking-note');
+  const formBookingId = document.getElementById('form-booking-id');
+
+  uploadButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const booking = button.getAttribute('data-booking');
+      const amount = button.getAttribute('data-amount');
+      const layananCell = button.getAttribute('data-layanan');
+
+      // Determine if this is mobile or desktop view and get duration accordingly
+      let durasiText = '';
+
+      // Check if we're in desktop view (with table rows)
+      const row = button.closest('tr');
+      if (row) {
+        // Desktop view - get duration from the table cell
+        const durasiCell = row.querySelector('td:nth-child(3)');
+        durasiText = durasiCell ? durasiCell.innerText.trim() : '';
+      } else {
+        // Mobile view - find the durasi in the card
+        const card = button.closest('.booking-row');
+        if (card) {
+          const durasiElement = card.querySelector('.flex.justify-between:nth-child(3)');
+          if (durasiElement && durasiElement.textContent.includes('Durasi:')) {
+            durasiText = durasiElement.querySelector('.font-medium').textContent.trim();
+          }
+        }
+      }
+
+      bookingNumber.textContent = booking;
+      bookingService.textContent = layananCell;
+      bookingAmount.textContent = `Rp ${parseInt(amount).toLocaleString('id-ID')}`;
+      formBookingId.value = booking.replace('BK-', '');
+
+      if (layananCell.toLowerCase().includes('sitting') || layananCell.toLowerCase().includes('penitipan')) {
+        bookingNote.textContent = ` (Harga x ${durasiText})`;
+      } else {
+        bookingNote.textContent = '';
+      }
+
+      paymentModal.style.display = 'block';
+    });
+  });
+
+  // Preview gambar bukti bayar
+  const fileInput = document.getElementById('payment-proof');
+  const fileName = document.getElementById('file-name');
+  const previewPayment = document.getElementById('preview-payment');
+
+  fileInput.addEventListener('change', function () {
+    if (this.files.length > 0) {
+      fileName.textContent = this.files[0].name;
+      const file = this.files[0];
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          previewPayment.innerHTML = `<img src="${e.target.result}" class="w-32 h-32 object-cover rounded border mt-2">`;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewPayment.innerHTML = '';
+      }
+    } else {
+      fileName.textContent = 'Belum ada file dipilih';
+      previewPayment.innerHTML = '';
+    }
+  });
+
+  // Detail Modal AJAX
+  const detailButtons = document.querySelectorAll('.detail-btn');
+  const detailContent = document.getElementById('detail-content');
+
+  detailButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const bookingId = button.getAttribute('data-booking').replace('BK-', '');
+
+      // Show loading spinner
+      detailContent.innerHTML = `
+        <div class="flex justify-center items-center py-10">
+          <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500"></div>
+        </div>
+      `;
+
+      detailModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+
+      fetch(`/booking/detail/${bookingId}/`)
+        .then(response => response.json())
+        .then(data => {
+          // Format status badge display
+          const statusDisplay = {
+            'pending': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>',
+            'process': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diproses</span>',
+            'completed': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Selesai</span>',
+            'canceled': '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Dibatalkan</span>'
+          };
+
+          const paymentStatus = data.bukti_pembayaran
+            ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Sudah Bayar</span>'
+            : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Belum Bayar</span>';
+
+          detailContent.innerHTML = `
+            <div class="px-4">
+              <!-- Header with booking number and status -->
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-800">#BK-${data.id_booking}</h3>
+                  <p class="text-sm text-gray-500">Dibuat: ${data.tanggal_booking}</p>
+                </div>
+                <div>
+                  ${statusDisplay[data.status_booking] || `<span class="badge badge-${data.status_booking}">${data.status_booking}</span>`}
+                </div>
+              </div>
+              
+              <!-- Main details -->
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                  <i class="fas fa-calendar-alt text-orange-500 mr-2"></i> Informasi Booking
+                </h4>
+                <div class="grid grid-cols-2 gap-y-2 text-sm">
+                  <div class="text-gray-600">Tanggal Booking:</div>
+                  <div class="font-medium">${data.tanggal_booking}</div>
+                  
+                  <div class="text-gray-600">Tanggal Selesai:</div>
+                  <div class="font-medium">${data.tanggal_selesai || '-'}</div>
+                  
+                  <div class="text-gray-600">Durasi:</div>
+                  <div class="font-medium">${data.durasi_layanan ? data.durasi_layanan + ' hari' : '-'}</div>
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                  <i class="fas fa-paw text-orange-500 mr-2"></i> Informasi Hewan
+                </h4>
+                <div class="grid grid-cols-2 gap-y-2 text-sm">
+                  <div class="text-gray-600">Nama Hewan:</div>
+                  <div class="font-medium">${data.hewan.nama}</div>
+                  
+                  <div class="text-gray-600">Jenis Hewan:</div>
+                  <div class="font-medium">${data.hewan.jenis}</div>
+                  
+                  ${data.hewan.berat ? `
+                  <div class="text-gray-600">Berat Hewan:</div>
+                  <div class="font-medium">${data.hewan.berat} kg</div>
+                  ` : ''}
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                  <i class="fas fa-concierge-bell text-orange-500 mr-2"></i> Informasi Layanan
+                </h4>
+                <div class="grid grid-cols-2 gap-y-2 text-sm">
+                  <div class="text-gray-600">Jenis Layanan:</div>
+                  <div class="font-medium">${data.layanan}</div>
+                </div>
+              </div>
+              
+              <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                  <i class="fas fa-money-bill-wave text-orange-500 mr-2"></i> Informasi Pembayaran
+                </h4>
+                <div class="grid grid-cols-2 gap-y-2 text-sm">
+                  <div class="text-gray-600">Total Pembayaran:</div>
+                  <div class="font-bold text-orange-600">Rp ${parseInt(data.harga_booking).toLocaleString('id-ID')}</div>
+                  
+                  <div class="text-gray-600">Status Pembayaran:</div>
+                  <div>${paymentStatus}</div>
+                </div>
+                
+                ${data.bukti_pembayaran ? `
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                  <p class="text-gray-600 text-sm mb-2">Bukti Pembayaran:</p>
+                  <div class="flex justify-center">
+                    <img src="${data.bukti_pembayaran}" class="h-48 object-contain rounded-lg border border-gray-200 shadow-sm" 
+                         onclick="window.open(this.src, '_blank')" style="cursor: pointer;">
+                  </div>
+                </div>
+                ` : ''}
+              </div>
+              
+              ${data.catatan_booking ? `
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h4 class="font-medium text-gray-700 mb-2 flex items-center">
+                  <i class="fas fa-sticky-note text-orange-500 mr-2"></i> Catatan
+                </h4>
+                <p class="text-sm text-gray-600">${data.catatan_booking}</p>
+              </div>
+              ` : ''}
+            </div>
+          `;
+        })
+        .catch(error => {
+          detailContent.innerHTML = `
+            <div class="text-center py-6">
+              <i class="fas fa-exclamation-circle text-red-500 text-4xl mb-3"></i>
+              <p class="text-gray-700">Terjadi kesalahan saat memuat data.</p>
+              <p class="text-sm text-gray-500 mt-2">Silakan coba lagi nanti.</p>
+            </div>
+          `;
+        });
+    });
+  });
+
+  // Close Modal
+  closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      paymentModal.style.display = 'none';
+      detailModal.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scrolling
+    });
+  });
+
+  // Close modal when clicking outside of it
+  window.addEventListener('click', (event) => {
+    if (event.target === paymentModal) {
+      paymentModal.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+    if (event.target === detailModal) {
+      detailModal.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+  });
+
+  // Debug helper for mobile testing - log when buttons are clicked
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log('Total upload buttons found:', uploadButtons.length);
+
+    // Additional check for mobile upload buttons
+    const mobileUploadBtns = document.querySelectorAll('.md\\:hidden .upload-btn');
+    console.log('Mobile upload buttons found:', mobileUploadBtns.length);
+
+    // Add a more explicit click handler for mobile buttons with additional logging
+    mobileUploadBtns.forEach(button => {
+      button.addEventListener('click', function (event) {
+        console.log('Mobile upload button clicked');
+        event.preventDefault();
+        event.stopPropagation();
+
+        // Get data attributes
+        const booking = this.getAttribute('data-booking');
+        const amount = this.getAttribute('data-amount');
+        const layananCell = this.getAttribute('data-layanan');
+
+        console.log('Booking:', booking, 'Amount:', amount, 'Service:', layananCell);
+
+        // Find booking card and try to get durasi if available
+        const card = this.closest('.booking-row');
+        let durasiText = '';
+
+        if (card) {
+          // Try to find the duration element within the card
+          const allItems = card.querySelectorAll('.flex.justify-between');
+          allItems.forEach(item => {
+            if (item.textContent.includes('Durasi:')) {
+              durasiText = item.querySelector('.font-medium').textContent.trim();
+              console.log('Found duration:', durasiText);
+            }
+          });
+        }
+
+        // Update modal with information
+        bookingNumber.textContent = booking;
+        bookingService.textContent = layananCell;
+        bookingAmount.textContent = `Rp ${parseInt(amount).toLocaleString('id-ID')}`;
+        formBookingId.value = booking.replace('BK-', '');
+
+        if (layananCell.toLowerCase().includes('sitting') || layananCell.toLowerCase().includes('penitipan')) {
+          bookingNote.textContent = ` (Harga x ${durasiText})`;
+        } else {
+          bookingNote.textContent = '';
+        }
+
+        // Show modal and position it properly
+        paymentModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      });
+    });
+  });
+
+
+  fileInput.addEventListener('change', function () {
+    if (this.files.length > 0) {
+      fileName.textContent = this.files[0].name;
+    } else {
+      fileName.textContent = 'Belum ada file dipilih';
+    }
+  });
+</script>
+{% endblock scriptsheet %}

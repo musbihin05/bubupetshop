@@ -1,0 +1,74 @@
+{% load static %}
+
+<!-- Navbar -->
+<nav id="navbar" class="bg-white py-4 shadow-md transition-all duration-300 ease-in-out">
+  <div class="container mx-auto px-8 md:px-16 flex items-center">
+    <!-- Logo -->
+    <a href="#" class="flex items-center flex-shrink-0">
+      <img src="{% static 'base-img/icon.png' %}" alt="Bubu Petshop Logo" class="w-8 md:w-10 mr-2 md:mr-4" />
+      <span class="text-xl md:text-3xl font-bold text-orange-theme rounded-md">{{ detail_petcare.nama_petcare }}</span>
+    </a>
+
+    <!-- Menu Items - Moved to right side -->
+    <div class="flex-grow"></div>
+
+    <!-- Hamburger Menu for Mobile - Now on the right side -->
+    <div class="block lg:hidden ml-auto">
+      <button id="hamburger" class="text-gray-600 focus:outline-none p-2">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    </div>
+
+    <div id="navbar-menu" class="navbar-menu hidden lg:flex lg:items-center lg:w-auto w-full">
+      <div class="text-sm lg:flex lg:mr-4">
+        <a href="{% url 'home:index' %}"
+          class="block mt-4 lg:inline-block lg:mt-0 text-gray-500 font-bold uppercase hover-text-orange-theme mr-4 p-2 rounded-md transition-colors duration-200 {% if namespace == 'home' %}text-orange-theme{% endif %}">HOME</a>
+        <a href="{% url 'home:index' %}#layanan"
+          class="block mt-4 lg:inline-block lg:mt-0 text-gray-500 font-bold uppercase hover-text-orange-theme mr-4 p-2 rounded-md transition-colors duration-200">LAYANAN
+
+          <a href="{% url 'home:index' %}#katalog"
+            class="block mt-4 lg:inline-block lg:mt-0 text-gray-500 font-bold uppercase hover-text-orange-theme mr-4 p-2 rounded-md transition-colors duration-200">KATALOG</a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'bookinglayanan:index' %}"
+            class="block mt-4 lg:inline-block lg:mt-0 text-gray-500 font-bold uppercase hover-text-orange-theme mr-4 p-2 rounded-md transition-colors duration-200 {% if namespace == 'bookinglayanan' %}text-orange-theme{% endif %}">
+            BOOKING</a>
+          {% endif %}
+          <a href="{% url 'home:index' %}#about"
+            class="block mt-4 lg:inline-block lg:mt-0 text-gray-500 font-bold uppercase hover-text-orange-theme p-2 rounded-md transition-colors duration-200">ABOUT</a>
+      </div>
+
+      <!-- Auth Section - Now inside navbar-menu for mobile and desktop -->
+      <div id="auth-section" class="user-auth-section w-full lg:w-auto flex justify-center items-center mt-4 lg:mt-0">
+        {% if not user.is_authenticated %}
+        <a href="{% url 'user:login' %}" class="btn-modern">
+          Masuk
+        </a>
+        {% else %}
+        <div id="user-dropdown" class="user-menu relative flex justify-center">
+          <button id="profile-button"
+            class="flex items-center justify-center space-x-2 text-gray-600 hover-text-orange-theme focus:outline-none">
+            <i class="fas fa-user-circle text-2xl"></i>
+            <span class="inline">Halo, {{ user.nama }}!</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+          <div id="profile-dropdown"
+            class="dropdown-menu absolute mt-8 w-48 bg-white rounded-md shadow-lg py-1 z-20 hidden">
+            <a href="{% url 'user:index' %}"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if namespace == 'user' %}text-orange-theme{% endif %}">Profile</a>
+            <a href="{% url 'peliharaan:index' %}"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if namespace == 'peliharaan' %}text-orange-theme{% endif %}">Peliharaan</a>
+            <a href="{% url 'bookinglayanan:index' %}"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {% if namespace == 'bookinglayanan' %}text-orange-theme{% endif %}">Riwayat
+              Booking</a>
+            <form action="{% url 'user:logout' %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" id="logout-button"
+                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>
