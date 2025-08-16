@@ -37,14 +37,14 @@
     </div>
 
     <!-- Product Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10" id="product-grid">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-10" id="product-grid">
       {% for produk in produk_list %}
 
       <a class='produk-data' href="{% url 'produk:detail_produk' produk.id_produk %}">
 
 
-        <div class="product-card group" data-category="{{ produk.kategori }}">
-          <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+        <div class="product-card group h-full flex flex-col" data-category="{{ produk.kategori }}">
+          <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
             <!-- Badge for stock status -->
             <div class="relative">
               {% if produk.stok_produk > 10 %}
@@ -52,7 +52,7 @@
                 class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full ">Tersedia</span>
               {% elif produk.stok_produk > 0 %}
               <span
-                class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">Terbatas</span>
+                class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full ">Terbatas</span>
               {% else %}
               <span
                 class="absolute top-4 left-4 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Habis</span>
@@ -61,7 +61,7 @@
               <span class="absolute top-4 right-4 z-10 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 {{ produk.kategori_label }}</span>
               <!-- Product Image with Overlay -->
-              <div class="relative overflow-hidden ratio ratio-4x3">
+              <div class="relative overflow-hidden aspect-w-4 aspect-h-3">
                 <img src="{{ produk.gambar_produk.url }}" class="card-img-top object-fit-cover" alt="{{ produk.nama_produk }}"
                   class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if produk.stok == 0 %}filter grayscale{% endif %}" />
                 <div
@@ -72,15 +72,15 @@
 
             <!-- Product Info -->
             <div class="p-6">
-              <h3 class="card-title responsive-text font-bold text-gray-800 mb-2 ">
+              <h3 class="text-sm sm:text-base lg:text-lg font-bold text-gray-800 mb-2">
                 {{ produk.nama_produk|truncatechars:50 }}
               </h3>
               <div class="flex justify-between items-center mt-4">
-                <span class="text-xl font-bold text-orange-theme " >
+                <span class="text-sm sm:text-base lg:text-lg font-bold text-orange-theme " >
                   {% load humanize %}
                   Rp {{ produk.harga_produk|intcomma }}
                 </span>
-                <span class="text-sm text-gray-500">Stok:
+                <span class="text-sm sm:text-base lg:text-lg text-gray-500">Stok:
                   <span
                     class="font-semibold {% if produk.stok_produk > 20 %}text-green-600{% elif produk.stok_produk > 0 %}text-yellow-600{% else %}text-red-600{% endif %}">
                     {{ produk.stok_produk }}</span></span>
