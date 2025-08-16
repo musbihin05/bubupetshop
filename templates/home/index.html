@@ -56,11 +56,11 @@
       hanya dengan beberapa klik.
     </p><br><br>
      <!-- Tombol Panah Scroll -->
-    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-      <a href="{% url 'home:index' %}#layanan" class="text-orange-500 hover:text-orange-600 transition-colors duration-300">
-        <i class="fas fa-arrow-down text-4xl animate-bounce-custom"></i>
-      </a>
-    </div>
+   <div id="scrollArrow" class="absolute bottom-4  left-1/2 transform -translate-x-1/2 transition-opacity duration-500">
+  <a href="{% url 'home:index' %}#layanan" class="bg-orange-500 text-white p-3 rounded-full shadow-lg hover:bg-orange-600 transition-transform transform hover:scale-110">
+    <i class="fas fa-arrow-down text-5xl animate-bounce"></i>
+  </a>
+</div>
   </div>
 </section>
 
@@ -273,6 +273,14 @@
       640: { slidesPerView: 2 },
       1024: { slidesPerView: 3 },
       1280: { slidesPerView: 4 }
+    }
+  });
+   window.addEventListener("scroll", function () {
+    const arrow = document.getElementById("scrollArrow");
+    if (window.scrollY > 250) {
+      arrow.classList.add("opacity-0", "pointer-events-none"); // hilang
+    } else {
+      arrow.classList.remove("opacity-0", "pointer-events-none"); // muncul lagi
     }
   });
 </script>
