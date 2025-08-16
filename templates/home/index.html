@@ -1,12 +1,40 @@
 {% extends 'base.html' %} {% load static %} {% block title %} {{ title }}
-{% endblock title %} {% block content %}
-
+{% endblock title %} {% block content %} {% load humanize %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <style>
   #layanan, #katalog, #about, #lokasi {
-    scroll-margin-top: 90px; /* kasih jarak 80px dari atas */
+    scroll-margin-top: 90px; 
   }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+ .swiper-button-prev::after,
+.swiper-button-next::after {
+  display: none !important;
+}
+
+.custom-arrow {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.custom-arrow img {
+  width: autoHeight;  /* atur sesuai ukuran ikon */
+  height: autoHeight;
+}
+
+.custom-arrow:hover {
+  background: #ff6600;
+  transform: scale(1.1);
+}
+
+
+
 </style>
 <!-- Hero Section -->
 <section id="home" class="relative bg-cover bg-center h-screen flex items-center justify-center text-white"
@@ -105,28 +133,26 @@
         class="fas fa-box-open absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
     </h2>
 
-    <!-- Product Filter Tabs -->
-  <div class="flex flex-wrap justify-center mb-8">
-      <button class="catalog-filter-btn active" data-filter="all">Semua</button>
-        {% for key, kategori in kategori_produk.items %}
-        <button class="catalog-filter-btn" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
-        {% endfor %}
-    </div>
 
-    <!-- Product Cards Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-     {% for produk in produk_list %}
-      <a class='produk-data' href="{% url 'produk:detail_produk' produk.id_produk %}">
-        <div class="product-card group" data-category="{{ produk.kategori }}">
-          <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
+  <!-- Swiper Container -->
+  <div class="swiper katalog-produk">
+    <div class="swiper-wrapper">
+      {% for produk in produk_list|slice:":20" %}
+      <div class="swiper-slide h-auto">
+        <a class='product-card group h-full flex flex-col' href="{% url 'produk:detail_produk' produk.id_produk %}">
+          <div class="product-card group h-full flex flex-col" data-category="{{ produk.kategori }}">
+          <div class="bg-white rounded-xl 
+            shadow-[0_4px_20px_rgba(0,0,0,0.05)] 
+            hover:shadow-[0_12px_32px_rgba(0,0,0,0.10)] 
+            transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
             <!-- Badge for stock status -->
             <div class="relative">
-              {% if produk.stok_produk > 20 %}
+              {% if produk.stok_produk > 10 %}
               <span
                 class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Tersedia</span>
               {% elif produk.stok_produk > 0 %}
               <span
-                class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">Terbatas</span>
+                class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full ">Terbatas</span>
               {% else %}
               <span
                 class="absolute top-4 left-4 z-10 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">Habis</span>
@@ -135,8 +161,8 @@
               <span class="absolute top-4 right-4 z-10 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 {{ produk.kategori_label }}</span>
               <!-- Product Image with Overlay -->
-              <div class="relative overflow-hidden">
-                <img src="{{ produk.gambar_produk.url }}" alt="{{ produk.nama_produk }}"
+              <div class="relative overflow-hidden aspect-w-4 aspect-h-3">
+                <img src="{{ produk.gambar_produk.url }}" class="card-img-top object-fit-cover" alt="{{ produk.nama_produk }}"
                   class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if produk.stok == 0 %}filter grayscale{% endif %}" />
                 <div
                   class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300 {% if produk.stok == 0 %}opacity-30{% endif %}">
@@ -144,27 +170,42 @@
               </div>
             </div>
 
-            <!-- Product Info -->
-            <div class="p-6">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">
-                {{ produk.nama_produk }}
-              </h3>
-              <div class="flex justify-between items-center mt-4">
-                <span class="text-xl font-bold text-orange-theme">
-                  {% load humanize %}
-                  Rp {{ produk.harga_produk|floatformat:0|intcomma }}
-                </span>
-                <span class="text-sm text-gray-500">Stok:
-                  <span
-                    class="font-semibold {% if produk.stok_produk > 20 %}text-green-600{% elif produk.stok_produk > 0 %}text-yellow-600{% else %}text-red-600{% endif %}">
-                    {{ produk.stok_produk }}</span></span>
+
+              <!-- Product Info -->
+              <div class="p-6 ">
+                <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
+                  {{ produk.nama_produk|truncatechars:50 }}
+                </h3>
+                <div class="flex justify-between items-center mt-4">
+                  <span class="text-md font-bold text-orange-theme">
+                    Rp {{ produk.harga_produk|floatformat:0|intcomma }}
+                  </span>
+                  <span class="text-sm text-gray-500">Stok:
+                    <span
+                      class="font-semibold {% if produk.stok_produk > 20 %}text-green-600{% elif produk.stok_produk > 0 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                      {{ produk.stok_produk }}</span></span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </a>
+        </a>
+      </div>
       {% endfor %}
     </div>
+
+   <!-- Tombol Prev -->
+<div class="swiper-button-prev custom-arrow">
+  <img src="{% static 'base-img/left-arrow.png' %}" alt="Prev" />
+</div>
+
+<!-- Tombol Next -->
+<div class="swiper-button-next custom-arrow">
+  <img src="{% static 'base-img/right-arrow.png' %}" alt="Next" />
+</div>
+  </div>
+</div>
+
+
     <!-- View More Button -->
     <div class="mt-12 text-center">
       <a href="{% url 'produk:index' %}" class="btn-modern px-8 py-3">
@@ -214,43 +255,21 @@
 {% endblock content %} {% block scriptsheet %}
 
 
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-  // Page-specific JavaScript
- 
-
- // Catalog Filter functionality
-  const filterButtons = document.querySelectorAll('.catalog-filter-btn');
-  const productData = document.querySelectorAll('.produk-data');
-
-  filterButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      filterButtons.forEach(btn => btn.classList.remove('active'));
-      button.classList.add('active');
-      const filterValue = button.getAttribute('data-filter');
-      productData.forEach(card => {
-        if (filterValue === 'all') {
-          card.style.display = 'block';
-        } else {
-          if (card.children[0].getAttribute('data-category') === filterValue) {
-            card.style.display = 'block';
-          } else {
-            card.style.display = 'none';
-          }
-        }
-      });
-    });
+  new Swiper(".katalog-produk", {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    autoHeight: false,
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev",
+    },
+    breakpoints: {
+      640: { slidesPerView: 2 },
+      1024: { slidesPerView: 3 },
+      1280: { slidesPerView: 4 }
+    }
   });
-
-  // Add animation effect on product cards
-  productData.forEach(card => {
-    card.addEventListener('mouseenter', function () {
-      this.querySelector('.btn-modern')?.classList.add('scale-110');
-    });
-    card.addEventListener('mouseleave', function () {
-      this.querySelector('.btn-modern')?.classList.remove('scale-110');
-    });
-  }); 
-
-
 </script>
 {% endblock scriptsheet %}

@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from produk.models import Produk
+from django.db.models import Count  
+import random
 
 # Create your views here.
 def index(request):
   
     kategori_dict = dict(Produk.KATEGORI_CHOICES)
-    produk = Produk.objects.all()
-
+    produk = Produk.objects.order_by('?')
     for p in produk:
         p.kategori_label = kategori_dict.get(p.kategori, '')
     
@@ -32,3 +33,4 @@ def detail_produk(request, produk_id):
     }
     
     return render(request, 'produk/detail.html', context)
+

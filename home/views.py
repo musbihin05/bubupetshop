@@ -5,7 +5,7 @@ from produk.models import Produk
 # Create your views here.
 def index(request):
     kategori_dict = dict(Produk.KATEGORI_CHOICES)
-    produk = Produk.objects.all()
+    produk = Produk.objects.order_by('?')
 
     for p in produk:
         p.kategori_label = kategori_dict.get(p.kategori, '')
@@ -14,7 +14,7 @@ def index(request):
       'title': "Bubu Petshop",
 
       'kategori_produk': kategori_dict,
-      'produk_list': produk[:4],  # opsional jika ingin 4 produk terbaru
+      'produk_list': produk[:20],  # opsional jika ingin 4 produk terbaru
     }
     return render(request, 'home/index.html', context)
 
