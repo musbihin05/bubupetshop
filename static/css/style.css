@@ -463,9 +463,18 @@ body {
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.75rem;  /* default (desktop/tablet) */
   font-weight: 600;
   border-radius: 9999px;
+  line-height: 1.1;
+}
+
+/* Kecilkan di mobile */
+@media (max-width: 640px) {
+  .badge {
+    font-size: 0.625rem !important; /* = 10px */
+    padding: 0.125rem 0.5rem !important; /* lebih rapat */
+  }
 }
 
 .badge-pending {

@@ -1,27 +1,6 @@
 {% extends "base.html" %}{% load static %}
 
 {% block title %}{{ title }}{% endblock title %}
-
-<style
-  .responsive-text {
-  font-size: 2vw;   /* otomatis menyesuaikan lebar layar */
-}
-.badge {
-  font-size: 12px;   /* default ukuran (tablet & desktop) */
-  padding: 4px 8px;  /* default padding */
-  font-weight: 600;
-  border-radius: 9999px; /* rounded-full */
-  line-height: 1.1;
-}
-
-/* Saat layar kecil (mobile) */
-@media (max-width: 640px) {
-  .badge {
-    font-size: 7px;   /* kecilkan font */
-    padding: 2px 6px;  /* kecilkan padding */
-  }
-}
-</style>
 {% block content %}
 <!-- Page Header -->
 <div class="bg-gray-700 py-10 px-4 relative">
@@ -66,7 +45,7 @@
               <span class="badge absolute top-2 left-2 z-10 bg-green-500 text-white 
                  text-xs font-bold px-3 py-1 rounded-full scale-50 origin-top-left"> Tersedia</span>
               {% elif produk.stok_produk > 0 %}
-              <<span class="badge absolute top-2 left-2 z-10 bg-yellow-500 text-white 
+              <span class="badge absolute top-2 left-2 z-10 bg-yellow-500 text-white 
                  text-xs font-bold px-3 py-1 rounded-full scale-50 origin-top-left"> Terbatas</span>
               {% else %}
               <span class="badge absolute top-2 left-2 z-10 bg-red-500 text-white 
@@ -74,9 +53,10 @@
               {% endif %}
               <!-- Badge for category -->
               <span
-  class="badge absolute top-2 right-2 z-10 bg-blue-500 text-white 
-         text-xs font-bold px-3 py-1 rounded-full scale-50 origin-top-right">
-  {{ produk.kategori_label }}</span>
+              class="badge absolute top-2 right-2 z-10 bg-blue-500 text-white 
+                    text-xs font-bold px-3 py-1 rounded-full scale-50 origin-top-right">
+                    {{ produk.kategori_label }}
+              </span>
 
                 
               <!-- Product Image with Overlay -->
