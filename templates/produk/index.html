@@ -2,6 +2,11 @@
 
 {% block title %}{{ title }}{% endblock title %}
 
+<style
+  .responsive-text {
+  font-size: 2vw;   /* otomatis menyesuaikan lebar layar */
+}
+</style>
 {% block content %}
 <!-- Page Header -->
 <div class="bg-gray-700 py-10 px-4 relative">
@@ -32,7 +37,7 @@
     </div>
 
     <!-- Product Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10" id="product-grid">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10" id="product-grid">
       {% for produk in produk_list %}
 
       <a class='produk-data' href="{% url 'produk:detail_produk' produk.id_produk %}">
@@ -44,7 +49,7 @@
             <div class="relative">
               {% if produk.stok_produk > 10 %}
               <span
-                class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Tersedia</span>
+                class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full ">Tersedia</span>
               {% elif produk.stok_produk > 0 %}
               <span
                 class="absolute top-4 left-4 z-10 bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full">Terbatas</span>
@@ -56,8 +61,8 @@
               <span class="absolute top-4 right-4 z-10 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                 {{ produk.kategori_label }}</span>
               <!-- Product Image with Overlay -->
-              <div class="relative overflow-hidden">
-                <img src="{{ produk.gambar_produk.url }}" alt="{{ produk.nama_produk }}"
+              <div class="relative overflow-hidden ratio ratio-4x3">
+                <img src="{{ produk.gambar_produk.url }}" class="card-img-top object-fit-cover" alt="{{ produk.nama_produk }}"
                   class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300 {% if produk.stok == 0 %}filter grayscale{% endif %}" />
                 <div
                   class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300 {% if produk.stok == 0 %}opacity-30{% endif %}">
@@ -67,11 +72,11 @@
 
             <!-- Product Info -->
             <div class="p-6">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">
+              <h3 class="card-title responsive-text font-bold text-gray-800 mb-2 ">
                 {{ produk.nama_produk|truncatechars:50 }}
               </h3>
               <div class="flex justify-between items-center mt-4">
-                <span class="text-xl font-bold text-orange-theme">
+                <span class="text-xl font-bold text-orange-theme " >
                   {% load humanize %}
                   Rp {{ produk.harga_produk|intcomma }}
                 </span>
