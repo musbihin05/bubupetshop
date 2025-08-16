@@ -58,7 +58,7 @@
 </section>
 
 <!-- Services Section -->
-<section id="layanan" class="py-16 bg-gray-50 mt-12">
+<section id="layanan" class="py-6 bg-gray-50 mt-12">
   <div class="container mx-auto px-4">
     <h2 class="text-4xl font-bold text-center text-orange-theme mb-12 relative">
       <span class="inline-block pb-2 relative">
@@ -122,7 +122,7 @@
 </section>
 
 <!-- Catalog Section -->
-<section id="katalog" class="py-16 bg-white mt-12">
+<section id="katalog" class="py-6 bg-white mt-12">
   <div class="container mx-auto px-4">
     <h2 class="text-3xl md:text-4xl text-center font-bold text-orange-theme mb-6 relative fancy-title">
       <span class="inline-block pb-2 relative">
@@ -140,11 +140,8 @@
       {% for produk in produk_list|slice:":20" %}
       <div class="swiper-slide h-auto ">
         <a class='product-card group h-full flex flex-col' href="{% url 'produk:detail_produk' produk.id_produk %}">
-          <div class="product-card group h-full flex flex-col" data-category="{{ produk.kategori }}">
-          <div class="bg-white rounded-xl 
-            shadow-[0_4px_20px_rgba(0,0,0,0.05)] 
-            hover:shadow-[0_12px_32px_rgba(0,0,0,0.10)] 
-            transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] ">
+          <div class=" h-full flex flex-col" data-category="{{ produk.kategori }}">
+          <div class="bg-white rounded-xl ">
             <!-- Badge for stock status -->
             <div class="relative">
               {% if produk.stok_produk > 10 %}
