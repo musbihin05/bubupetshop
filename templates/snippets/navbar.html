@@ -4,7 +4,7 @@
 <nav id="navbar" class="bg-white py-4 shadow-md transition-all duration-300 ease-in-out">
   <div class="container mx-auto px-8 md:px-16 flex items-center">
     <!-- Logo -->
-    <a href="#" class="flex items-center flex-shrink-0">
+    <a href="{% url 'home:index' %}" class="flex items-center flex-shrink-0">
       <img src="{% static 'base-img/icon.png' %}" alt="Bubu Petshop Logo" class="w-8 md:w-10 mr-2 md:mr-4" />
       <span class="text-xl md:text-3xl font-bold text-orange-theme rounded-md">{{ detail_petcare.nama_petcare }}</span>
     </a>

@@ -7,10 +7,16 @@
 <!-- Page Header -->
 <div class="bg-gray-700 py-10 px-4 relative">
   <div class="container mx-auto text-center">
-    <h1 class="text-4xl font-bold text-white mb-2">Layanan Grooming</h1>
-    <p class="text-white text-lg">Perawatan terbaik untuk kebersihan dan kecantikan hewan kesayangan Anda</p>
+    <!-- Judul -->
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
+      Layanan Grooming
+    </h1>
+    
+    <!-- Deskripsi -->
+    <p class="text-sm sm:text-base md:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed">
+      Perawatan terbaik untuk kebersihan dan kecantikan hewan kesayangan Anda
+    </p>
   </div>
-  {% comment %} <i class="fas fa-cut absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
 </div>
 
 <!-- Services Catalog Section -->
@@ -26,14 +32,15 @@
       </div>
     </div>
 
-    <!-- Services Grid -->
+    <!-- grid layanan -->
     <div
-      class="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-10"
+      class="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-10 items-stretch"
       id="service-grid">
       {% for service in grooming_services %}
-      <div class="service-card group">
-        <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-          <!-- Service Image with Overlay -->
+      <div class="service-card group flex flex-col">
+        <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+          
+          <!-- Service Image -->
           <div class="relative overflow-hidden">
             {% if service.foto_grooming %}
             <img src="{{ service.foto_grooming.url }}" alt="{{ service.nama_grooming }}"
@@ -43,19 +50,19 @@
               <i class="fas fa-cut text-orange-300 text-3xl md:text-5xl"></i>
             </div>
             {% endif %}
-            <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300">
-            </div>
+            <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
           </div>
 
           <!-- Service Info -->
-          <div class="p-3 xs:p-4 md:p-6">
+          <div class="p-3 xs:p-4 md:p-6 flex flex-col flex-1">
             <h3 class="text-sm xs:text-base md:text-lg lg:text-xl font-bold text-gray-800 mb-1 md:mb-2 line-clamp-2">
               {{ service.nama_grooming }}
             </h3>
-            <p class="text-xs md:text-sm text-gray-600 mb-2 md:mb-4 line-clamp-2 sm:line-clamp-3">
-              {{ service.deskripsi_grooming }}</p>
+            <p class="text-xs md:text-sm text-gray-600 mb-2 md:mb-4 line-clamp-2 sm:line-clamp-3 flex-1">
+              {{ service.deskripsi_grooming }}
+            </p>
 
-            <div class="flex xs:flex-col md:flex-row justify-between items-center mt-2 md:mt-4">
+            <div class="flex xs:flex-col md:flex-row justify-between items-center mt-auto">
               <p class="text-md font-bold text-orange-theme">
                 Rp {{ service.harga_grooming|floatformat:0|intcomma }}
               </p>
@@ -67,9 +74,9 @@
             </div>
           </div>
         </div>
-      </div>
-      {% endfor %}
     </div>
+  {% endfor %}
+</div>
 
     <!-- No Results Message (hidden by default) -->
     <div id="no-results" class="hidden text-center py-6 md:py-8 bg-white rounded-lg shadow-md">
