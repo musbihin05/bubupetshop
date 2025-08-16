@@ -35,6 +35,7 @@
 
 
 
+
 </style>
 <!-- Hero Section -->
 <section id="home" class="relative bg-cover bg-center h-screen flex items-center justify-center text-white"
@@ -53,7 +54,13 @@
       Layanan petshop menjadi lebih mudah dan terpercaya dengan Bubu Petshop.
       Booking layanan vaksin & steril, grooming, dan penitipan hewan peliharaan Anda
       hanya dengan beberapa klik.
-    </p>
+    </p><br><br>
+     <!-- Tombol Panah Scroll -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+      <a href="{% url 'home:index' %}#layanan" class="text-orange-500 hover:text-orange-600 transition-colors duration-300">
+        <i class="fas fa-arrow-down text-4xl animate-bounce-custom"></i>
+      </a>
+    </div>
   </div>
 </section>
 

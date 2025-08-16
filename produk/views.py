@@ -7,7 +7,8 @@ import random
 def index(request):
   
     kategori_dict = dict(Produk.KATEGORI_CHOICES)
-    produk = Produk.objects.order_by('?')
+    produk = Produk.objects.all()
+
     for p in produk:
         p.kategori_label = kategori_dict.get(p.kategori, '')
     
@@ -33,4 +34,5 @@ def detail_produk(request, produk_id):
     }
     
     return render(request, 'produk/detail.html', context)
+
 

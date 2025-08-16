@@ -33,6 +33,23 @@ body {
   }
 }
 
+@keyframes bounceCustom {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes bounceCustom {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-bounce-custom {
+  display: inline-block;
+  animation: bounceCustom 1.5s infinite;
+}
+.animate-bounce-custom {
+  display: inline-block;
+  animation: bounceCustom 1.5s infinite;
+}
+
 /* Color Theme */
 .orange-theme {
   background-color: #FF7F50;
@@ -178,7 +195,7 @@ body {
     width: 100%;
     background-color: rgba(255, 255, 255, 0.98);
     position: absolute;
-    top: 70px;
+    top: 55px;
     left: 0;
     padding: 1rem 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -590,7 +607,7 @@ body {
 }
 
 /* Scroll to Top Button Styles */
-.scrollToTopBtn {
+.scrollToTopBtn, .scrollToBottomBtn {
   width: 48px;
   height: 48px;
   border-radius: 50%;
