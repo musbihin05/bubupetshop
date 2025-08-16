@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <style>
   #layanan, #katalog, #about, #lokasi {
-    scroll-margin-top: 90px; 
+    scroll-margin-top: 60px; 
   }
  .swiper-button-prev::after,
 .swiper-button-next::after {
@@ -124,7 +124,7 @@
 <!-- Catalog Section -->
 <section id="katalog" class="py-16 bg-white mt-12">
   <div class="container mx-auto px-4">
-    <h2 class="text-3xl md:text-4xl text-center font-bold text-orange-theme mb-12 relative fancy-title">
+    <h2 class="text-3xl md:text-4xl text-center font-bold text-orange-theme mb-6 relative fancy-title">
       <span class="inline-block pb-2 relative">
         Katalog Produk
         <span class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-orange-theme"></span>
@@ -135,16 +135,16 @@
 
 
   <!-- Swiper Container -->
-  <div class="swiper katalog-produk">
-    <div class="swiper-wrapper">
+  <div class="swiper katalog-produk ">
+    <div class="swiper-wrapper ">
       {% for produk in produk_list|slice:":20" %}
-      <div class="swiper-slide h-auto">
+      <div class="swiper-slide h-auto ">
         <a class='product-card group h-full flex flex-col' href="{% url 'produk:detail_produk' produk.id_produk %}">
           <div class="product-card group h-full flex flex-col" data-category="{{ produk.kategori }}">
           <div class="bg-white rounded-xl 
             shadow-[0_4px_20px_rgba(0,0,0,0.05)] 
             hover:shadow-[0_12px_32px_rgba(0,0,0,0.10)] 
-            transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] ">
             <!-- Badge for stock status -->
             <div class="relative">
               {% if produk.stok_produk > 10 %}
@@ -172,7 +172,7 @@
 
 
               <!-- Product Info -->
-              <div class="p-6 ">
+              <div class="p-6 h-40 ">
                 <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
                   {{ produk.nama_produk|truncatechars:50 }}
                 </h3>
@@ -205,19 +205,19 @@
   </div>
 </div>
 
-
     <!-- View More Button -->
-    <div class="mt-12 text-center">
+    <div class=" text-center">
       <a href="{% url 'produk:index' %}" class="btn-modern px-8 py-3">
         Lihat Semua Produk <i class="fas fa-arrow-right ml-2"></i>
       </a>
     </div>
 
+
     <!-- Product Carousel -->
 </section>
 
 <!-- About Section -->
-<section id="about" class="py-16">
+<section id="about" class="py-7">
   <div class="container mx-auto px-4 text-center">
     <h2 class="text-3xl md:text-4xl font-bold text-orange-theme mb-8 relative fancy-title">
       <span class="inline-block pb-2 relative">

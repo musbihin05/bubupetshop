@@ -22,16 +22,16 @@
           <i class="fas fa-search search-icon"></i>
         </div>
       </div>
-      <div class="flex flex-wrap space-x-2">
-        <button class="catalog-filter-btn active" data-filter="all">Semua</button>
+      <div class="flex flex-wrap justify-center items-center space-x-2">
+        <button class="catalog-filter-btn active text-xs px-2 py-1 sm:text-sm sm:px-3 sm:py-1.5 md:text-base md:px-4 md:py-2" data-filter="all">Semua</button>
         {% for key, kategori in kategori_produk.items %}
-        <button class="catalog-filter-btn" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
+        <button class="catalog-filter-btn text-xs px-2 py-1 sm:text-sm sm:px-3 sm:py-1.5 md:text-base md:px-4 md:py-2" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
         {% endfor %}
       </div>
     </div>
 
     <!-- Product Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mb-10" id="product-grid">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 sm:gap-6 mb-10" id="product-grid">
       {% for produk in produk_list %}
 
       <a class='produk-data' href="{% url 'produk:detail_produk' produk.id_produk %}">
