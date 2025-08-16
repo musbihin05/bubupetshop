@@ -1,8 +1,11 @@
 {% extends 'base.html' %} {% load static %} {% block title %} {{ title }}
 {% endblock title %} {% block content %}
 
-
-
+<style>
+  #layanan, #katalog, #about, #lokasi {
+    scroll-margin-top: 90px; /* kasih jarak 80px dari atas */
+  }
+</style>
 <!-- Hero Section -->
 <section id="home" class="relative bg-cover bg-center h-screen flex items-center justify-center text-white"
   style="background-image: url('{% static 'base-img/header.png' %}')">
@@ -101,12 +104,12 @@
     </h2>
 
     <!-- Product Filter Tabs -->
-    <div class="flex flex-wrap justify-center mb-8">
+    {% comment %} <div class="flex flex-wrap justify-center mb-8">
       <button class="catalog-filter-btn active" data-filter="all">Semua</button>
-      {% for key, kategori in kategori_produk.items %}
-      <button class="catalog-filter-btn" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
-      {% endfor %}
-    </div>
+        {% for key, kategori in kategori_produk.items %}
+        <button class="catalog-filter-btn" data-filter="{{ key|lower }}">{{ kategori|title }}</button>
+        {% endfor %}
+    </div> {% endcomment %}
 
     <!-- Product Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -182,10 +185,7 @@
         class="fas fa-store absolute -top-6 -right-6 sm:-right-6 text-orange-theme opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
     </h2>
     <p class="text-gray-600 text-lg max-w-3xl mx-auto">
-      Bubu Petshop adalah platform booking terdepan untuk layanan perawatan
-      hewan peliharaan. Kami menghubungkan pemilik hewan dengan layanan
-      profesional untuk kesehatan, grooming, dan penitipan hewan. Semua layanan
-      dapat dengan mudah dipesan melalui platform kami untuk kenyamanan Anda.
+      {{ detail_petcare.deskripsi_petcare|linebreaksbr }}
     </p>
   </div>
 </section>

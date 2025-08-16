@@ -42,7 +42,7 @@
           <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
             <!-- Badge for stock status -->
             <div class="relative">
-              {% if produk.stok_produk > 20 %}
+              {% if produk.stok_produk > 10 %}
               <span
                 class="absolute top-4 left-4 z-10 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Tersedia</span>
               {% elif produk.stok_produk > 0 %}
@@ -68,7 +68,7 @@
             <!-- Product Info -->
             <div class="p-6">
               <h3 class="text-xl font-bold text-gray-800 mb-2">
-                {{ produk.nama_produk }}
+                {{ produk.nama_produk|truncatechars:50 }}
               </h3>
               <div class="flex justify-between items-center mt-4">
                 <span class="text-xl font-bold text-orange-theme">
