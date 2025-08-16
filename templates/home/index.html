@@ -150,7 +150,7 @@
               <div class="flex justify-between items-center mt-4">
                 <span class="text-xl font-bold text-orange-theme">
                   {% load humanize %}
-                  Rp {{ produk.harga_produk|intcomma }}
+                  Rp {{ produk.harga_produk|floatformat:0|intcomma }}
                 </span>
                 <span class="text-sm text-gray-500">Stok:
                   <span

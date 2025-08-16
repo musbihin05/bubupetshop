@@ -57,7 +57,7 @@
 
             <div class="flex xs:flex-col md:flex-row justify-between items-center mt-2 md:mt-4">
               <p class="text-md font-bold text-orange-theme">
-                Rp {{ service.harga_grooming|intcomma }}
+                Rp {{ service.harga_grooming|floatformat:0|intcomma }}
               </p>
 
               <a href="{% url 'bookinglayanan:tambah_booking' %}?tipe=grooming&id={{ service.id_grooming }}"
