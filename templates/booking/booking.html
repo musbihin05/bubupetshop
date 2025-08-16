@@ -78,6 +78,76 @@
           <textarea id="notes" name="catatan" class="form-input min-h-[120px] resize-y"
             placeholder="Tuliskan catatan atau kebutuhan khusus untuk layanan Anda..."></textarea>
         </div>
+        <!-- Terms and Conditions -->
+        <!-- Checkbox Terms -->
+        <div class="mb-6">
+          <div class="flex items-start">
+            <input id="terms" type="checkbox" class="form-checkbox mt-1" required />
+            <label for="terms" class="ml-2 text-sm text-gray-600">
+              Saya menyetujui
+              <a href="#" id="openTerms" class="text-orange-theme hover:underline">
+                Syarat & Ketentuan
+              </a>
+              <span class="text-xs md:text-sm text-red-500 mb-2">(harap baca)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="termsModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-start justify-center overflow-y-auto">
+          <div class="bg-white rounded-lg w-full h-screen md:h-auto md:max-w-2xl mx-auto md:mt-10 flex flex-col overflow-hidden"><br><br><br>
+            <!-- Body (scrollable) -->
+            <div
+              class="p-4 overflow-y-auto text-gray-700 text-sm space-y-4 flex-1"
+            >
+              <h2 class="text-xl font-bold text-gray-800">Syarat dan Ketentuan</h2>
+              <p>Ditujukan untuk seluruh pengguna website pemesanan pelayanan petshop.</p>
+
+              <h3 class="font-semibold text-gray-900">Pemesanan</h3>
+              <ul class="list-disc pl-6 space-y-1">
+                <li>Setiap pemesanan pelayanan akan kami minta kelengkapan data untuk kami proses.</li>
+                <li>Pemesanan valid dengan pengisian data & pembayaran <b>DP 25%</b> dari total order.</li>
+                <li>Konfirmasi pembayaran DP wajib dilakukan untuk menghindari kelalaian.</li>
+                <li>Konfirmasi jadwal akan dikirim via HP atau Email.</li>
+                <li>Update/perubahan data pelayanan adalah hak petshop, diinformasikan max 3 jam sebelumnya.</li>
+                <li>Jika 6 jam setelah input data tidak bayar booking fee → dianggap batal.</li>
+                <li>Pemesanan yang sudah dibayar akan berstatus <b>confirmed</b>.</li>
+              </ul>
+
+              <h3 class="font-semibold text-gray-900">Perubahan Pemesanan</h3>
+              <ul class="list-disc pl-6 space-y-1">
+                <li>Perubahan masa sewa max 1×24 jam sebelumnya.</li>
+                <li>Petshop berhak menyetujui atau menolak perubahan.</li>
+                <li>Overtime 10% per jam jika lewat waktu tanpa konfirmasi.</li>
+                <li>Perubahan jam & alamat max 2 jam sebelumnya.</li>
+                <li>Perpanjangan masa pelayanan diinformasikan 1×24 jam.</li>
+                <li>Petshop berhak menolak perpanjangan jika slot penuh.</li>
+              </ul>
+
+              <h3 class="font-semibold text-gray-900">Pembatalan Pemesanan</h3>
+              <ul class="list-disc pl-6 space-y-1">
+                <li>Pembatalan dikenakan biaya <b>25%</b> dari total sewa.</li>
+                <li>Pembatalan gratis jika dilakukan ≥ 2×24 jam sebelum jadwal.</li>
+              </ul>
+
+              <h3 class="font-semibold text-gray-900">Perubahan Harga dan Paket Sewa</h3>
+              <ul class="list-disc pl-6 space-y-1">
+                <li>Musim libur</li>
+                <li>Long weekend</li>
+                <li>High & peak season</li>
+              </ul>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-200 flex justify-center flex-shrink-0">
+              <button
+                id="closeTerms"
+                class="btn-modern bg-orange-500 hover:bg-orange-600 text-white" >
+                Mengerti
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Submit Button -->
         <div class="text-center">
@@ -164,6 +234,30 @@
           }
         }
       }, 100);
+    }
+  });
+
+
+  const openBtn = document.getElementById("openTerms");
+  const modal = document.getElementById("termsModal");
+  const closeBtn = document.getElementById("closeTerms");
+
+  openBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden"; // disable scroll background
+  });
+
+  closeBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+    document.body.style.overflow = "auto"; // enable scroll background
+  });
+
+  // Klik di luar modal (hanya di desktop)
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.add("hidden");
+      document.body.style.overflow = "auto";
     }
   });
 </script>
