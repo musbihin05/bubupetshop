@@ -244,85 +244,6 @@ def detail_pembayaran(request, booking_id):
     return render(request, 'booking/pembayaran.html', context)
 
 
-def get_daily_capacity(request):
-    if request.method == 'GET':
-        tanggal_str = request.GET.get('tanggal')
-        layanan_id = request.GET.get('layanan_id')
-        durasi_str = request.GET.get('durasi')
-        bulan_view = request.GET.get('bulan')
-        
-        if not tanggal_str or not layanan_id:
-            return JsonResponse({'error': 'Data yang dibutuhkan tidak lengkap.'}, status=400)
-        
-        try:
-            layanan_penitipan_obj = LayananPenitipan.objects.get(pk=layanan_id)
-
-            if bulan_view:
-                tanggal_mulai_bulan = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
-                first_day_of_month = tanggal_mulai_bulan.replace(day=1)
-                
-                if first_day_of_month.month == 12:
-                    last_day_of_month = first_day_of_month.replace(year=first_day_of_month.year + 1, month=1) - timedelta(days=1)
-                else:
-                    last_day_of_month = first_day_of_month.replace(month=first_day_of_month.month + 1) - timedelta(days=1)
-                
-                kapasitas_harian_queryset = DailyCapacity.objects.filter(
-                    layanan_penitipan=layanan_penitipan_obj,
-                    tanggal__gte=first_day_of_month,
-                    tanggal__lte=last_day_of_month
-                )
-                
-                kapasitas_bulan = {}
-                current_day = first_day_of_month
-                while current_day <= last_day_of_month:
-                    kapasitas_entri = next((item for item in kapasitas_harian_queryset if item.tanggal == current_day), None)
-                    
-                    if kapasitas_entri:
-                        kapasitas_bulan[current_day.strftime('%Y-%m-%d')] = kapasitas_entri.kapasitas_tersedia
-                    else:
-                        kapasitas_bulan[current_day.strftime('%Y-%m-%d')] = layanan_penitipan_obj.kapasitas_penitipan
-                    
-                    current_day += timedelta(days=1)
-                
-                return JsonResponse({'kapasitas_bulan': kapasitas_bulan})
-
-            durasi = int(durasi_str)
-            if durasi <= 0:
-                return JsonResponse({
-                    'kapasitas_cukup': False,
-                    'pesan': 'Durasi booking harus lebih dari 0 hari.'
-                })
-            
-            tanggal_mulai = datetime.strptime(tanggal_str, '%Y-%m-%d %H:%M').date()
-            
-            kapasitas_minimum_tersedia = float('inf')
-            
-            for i in range(durasi):
-                tanggal_per_hari = tanggal_mulai + timedelta(days=i)
-                
-                kapasitas_harian, created = DailyCapacity.objects.get_or_create(
-                    layanan_penitipan=layanan_penitipan_obj,
-                    tanggal=tanggal_per_hari,
-                    defaults={'kapasitas_tersedia': layanan_penitipan_obj.kapasitas_penitipan}
-                )
-                
-                if kapasitas_harian.kapasitas_tersedia <= 0:
-                    return JsonResponse({
-                        'kapasitas_cukup': False,
-                        'pesan': f'Maaf, kapasitas tidak tersedia di tanggal {tanggal_per_hari.strftime("%d %B %Y")}.'
-                    })
-                
-                kapasitas_minimum_tersedia = min(kapasitas_minimum_tersedia, kapasitas_harian.kapasitas_tersedia)
-
-            return JsonResponse({
-                'kapasitas_cukup': True,
-                'kapasitas_tersedia': kapasitas_minimum_tersedia
-            })
-        
-        except (ValueError, LayananPenitipan.DoesNotExist) as e:
-            return JsonResponse({'error': str(e)}, status=400)
-            
-    return JsonResponse({'error': 'Metode request tidak diizinkan.'}, status=405)
 
 
 def detail_booking(request, booking_id):
@@ -380,3 +301,176 @@ def detail_pembayaran(request, booking_id):
     
     return render(request, 'booking/pembayaran.html', context)
 
+def get_daily_capacity(request):
+    if request.method == 'GET':
+        tanggal_str = request.GET.get('tanggal')
+        layanan_id = request.GET.get('layanan_id')
+        durasi_str = request.GET.get('durasi')
+        bulan_view = request.GET.get('bulan')
+        
+        if not tanggal_str or not layanan_id:
+            return JsonResponse({'error': 'Data yang dibutuhkan tidak lengkap.'}, status=400)
+        
+        try:
+            layanan_penitipan_obj = LayananPenitipan.objects.get(pk=layanan_id)
+
+            if bulan_view:
+                tanggal_mulai_bulan = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
+                first_day_of_month = tanggal_mulai_bulan.replace(day=1)
+                
+                # Menginisialisasi kapasitas untuk setiap hari dalam sebulan
+                kapasitas_bulan = {}
+                today = date.today()
+                
+                current_day = first_day_of_month
+                while current_day.month == first_day_of_month.month:
+                    # Pastikan hanya hari di masa depan dan hari kerja yang ditampilkan
+                    if current_day >= today and current_day.weekday() < 5:  # 0=Senin, 4=Jumat
+                        kapasitas_bulan[current_day.strftime('%Y-%m-%d')] = layanan_penitipan_obj.kapasitas_penitipan
+                    current_day += timedelta(days=1)
+                
+                # Mengambil data kapasitas dari database dan menimpa nilai default
+                kapasitas_harian_queryset = DailyCapacity.objects.filter(
+                    layanan_penitipan=layanan_penitipan_obj,
+                    tanggal__gte=first_day_of_month,
+                    tanggal__lte=current_day - timedelta(days=1)
+                )
+                
+                for item in kapasitas_harian_queryset:
+                    kapasitas_bulan[item.tanggal.strftime('%Y-%m-%d')] = item.kapasitas_tersedia
+                
+                return JsonResponse({'kapasitas_bulan': kapasitas_bulan})
+
+            durasi = int(durasi_str)
+            if durasi <= 0:
+                return JsonResponse({
+                    'kapasitas_cukup': False,
+                    'pesan': 'Durasi booking harus lebih dari 0 hari.'
+                })
+            
+            tanggal_mulai = datetime.strptime(tanggal_str, '%Y-%m-%d %H:%M').date()
+            
+            kapasitas_minimum_tersedia = float('inf')
+            
+            for i in range(durasi):
+                tanggal_per_hari = tanggal_mulai + timedelta(days=i)
+                
+                kapasitas_harian, created = DailyCapacity.objects.get_or_create(
+                    layanan_penitipan=layanan_penitipan_obj,
+                    tanggal=tanggal_per_hari,
+                    defaults={'kapasitas_tersedia': layanan_penitipan_obj.kapasitas_penitipan}
+                )
+                
+                if kapasitas_harian.kapasitas_tersedia <= 0:
+                    return JsonResponse({
+                        'kapasitas_cukup': False,
+                        'pesan': f'Maaf, slot penitipan kosong pada tanggal {tanggal_per_hari.strftime("%d %B %Y")}.'
+                    })
+                
+                kapasitas_minimum_tersedia = min(kapasitas_minimum_tersedia, kapasitas_harian.kapasitas_tersedia)
+
+            return JsonResponse({
+                'kapasitas_cukup': True,
+                'kapasitas_tersedia': kapasitas_minimum_tersedia
+            })
+        
+        except (ValueError, LayananPenitipan.DoesNotExist) as e:
+            return JsonResponse({'error': str(e)}, status=400)
+            
+    return JsonResponse({'error': 'Metode request tidak diizinkan.'}, status=405)
+
+
+    """
+    Mengambil data kapasitas harian untuk tampilan kalender bulanan.
+    """
+    try:
+        tanggal_mulai_bulan = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
+        year, month = tanggal_mulai_bulan.year, tanggal_mulai_bulan.month
+        kapasitas_bulan = {}
+
+        # Ambil data dari tabel DailyCapacity saja
+        kapasitas_harian_queryset = DailyCapacity.objects.filter(
+            layanan_penitipan=layanan_penitipan_obj,
+            tanggal__year=year,
+            tanggal__month=month
+        )
+        for item in kapasitas_harian_queryset:
+            kapasitas_bulan[item.tanggal.strftime('%Y-%m-%d')] = item.kapasitas_tersedia
+
+        return JsonResponse({
+            'mode': 'bulan',
+            'data': kapasitas_bulan
+        })
+    except Exception as e:
+        return JsonResponse({'error': f'Terjadi kesalahan saat memuat data bulanan: {e}'}, status=500)
+
+
+    if request.method not in ['GET', 'POST']:
+        return JsonResponse({'error': 'Metode request tidak diizinkan.'}, status=405)
+
+    # --- Ambil data dari GET atau POST JSON ---
+    if request.method == 'GET':
+        tanggal_str = request.GET.get('tanggal')
+        layanan_id_str = request.GET.get('layanan_id')
+        durasi_str = request.GET.get('durasi')
+        bulan_view = request.GET.get('bulan')
+    else:  # POST JSON
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Format JSON tidak valid.'}, status=400)
+        tanggal_str = data.get('tanggal')
+        layanan_id_str = data.get('layanan_id')
+        durasi_str = data.get('durasi')
+        bulan_view = data.get('bulan')
+
+    # --- Validasi awal input ---
+    if not tanggal_str or not layanan_id_str:
+        return JsonResponse({'error': 'Data yang dibutuhkan tidak lengkap.'}, status=400)
+
+    try:
+        layanan_id = int(layanan_id_str)
+        layanan_penitipan_obj = LayananPenitipan.objects.get(pk=layanan_id)
+
+        # --- Panggil fungsi yang sesuai berdasarkan mode permintaan ---
+        if bulan_view:
+            return get_monthly_capacity(request, layanan_penitipan_obj, tanggal_str)
+
+        # --- Mode Pengecekan Durasi Booking ---
+        if not durasi_str:
+            return JsonResponse({'error': 'Durasi booking dibutuhkan.'}, status=400)
+
+        durasi = int(durasi_str)
+        if durasi <= 0:
+            return JsonResponse({'mode': 'durasi', 'data': {
+                'kapasitas_cukup': False,
+                'pesan': 'Durasi booking harus lebih dari 0 hari.'
+            }})
+
+        tanggal_mulai = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
+        kapasitas_minimum_tersedia = float('inf')
+
+        for i in range(durasi):
+            tanggal_per_hari = tanggal_mulai + timedelta(days=i)
+            kapasitas_harian, _ = DailyCapacity.objects.get_or_create(
+                layanan_penitipan=layanan_penitipan_obj,
+                tanggal=tanggal_per_hari,
+                defaults={'kapasitas_tersedia': layanan_penitipan_obj.kapasitas_penitipan}
+            )
+            if kapasitas_harian.kapasitas_tersedia <= 0:
+                return JsonResponse({'mode': 'durasi', 'data': {
+                    'kapasitas_cukup': False,
+                    'pesan': f'Maaf, kapasitas tidak tersedia di tanggal {tanggal_per_hari.strftime("%d %B %Y")}.'
+                }})
+
+            kapasitas_minimum_tersedia = min(kapasitas_minimum_tersedia, kapasitas_harian.kapasitas_tersedia)
+
+        return JsonResponse({'mode': 'durasi', 'data': {
+            'kapasitas_cukup': True,
+            'kapasitas_tersedia': kapasitas_minimum_tersedia
+        }})
+
+    except (ValueError, LayananPenitipan.DoesNotExist) as e:
+        return JsonResponse({'error': f'Layanan Penitipan tidak ditemukan atau ID tidak valid: {e}'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': f'Terjadi kesalahan server: {e}'}, status=500)
