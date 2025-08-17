@@ -1,7 +1,8 @@
 {% extends "base.html" %}{% load static %}
 
 {% block title %}{{ title }}{% endblock title %}
-
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 {% block content %}
 <div class="bg-gray-700 py-10 px-4 relative">
   <div class="container mx-auto text-center">
@@ -313,15 +314,20 @@
   });
 </script>
 <script>
-  // Logika pengecekan kapasitas dinamis
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
+    // === Elemen Form ===
     const serviceTypeSelect = document.getElementById('id_tipe_layanan');
     const serviceSelect = document.getElementById('id_layanan');
-    const tanggalInput = document.getElementById('id_tanggal');
     const durasiInput = document.getElementById('id_durasi');
+    const layanan = {{ layanan|safe }};
+
+    // === Elemen Validasi Real-time ===
+    const tanggalInput = document.getElementById('id_tanggal');
     const kapasitasInfo = document.getElementById('kapasitas-info');
     const kapasitasContainer = document.getElementById('kapasitas-container');
     const bookingForm = document.getElementById('bookingForm');
+
+    // === Elemen Modal Kalender ===
     const openCalendarBtn = document.getElementById('openCalendarBtn');
     const availabilityModal = document.getElementById('availabilityModal');
     const closeAvailabilityModal = document.getElementById('closeAvailabilityModal');
@@ -329,10 +335,34 @@
     const currentMonthYear = document.getElementById('currentMonthYear');
     const prevMonthBtn = document.getElementById('prevMonthBtn');
     const nextMonthBtn = document.getElementById('nextMonthBtn');
-    
     let currentDate = new Date();
 
-    // Fungsi untuk memperbarui info kapasitas
+    // === Logika Form & Validasi Real-time ===
+    function handleServiceTypeChange(selectedType) {
+      serviceSelect.innerHTML = '<option value="" disabled selected>-- Pilih Layanan --</option>';
+      serviceSelect.disabled = false;
+      if (selectedType === 'sitting') {
+        durasiInput.disabled = false;
+        durasiInput.required = true;
+      } else {
+        durasiInput.disabled = true;
+        durasiInput.required = false;
+        durasiInput.value = '';
+      }
+      if (selectedType && layanan[selectedType]) {
+        layanan[selectedType].forEach(function (item) {
+          if (item.id && item.nama_layanan) {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.nama_layanan + ' (Rp. ' + item.harga + ')';
+            serviceSelect.appendChild(option);
+          }
+        });
+      } else {
+        serviceSelect.disabled = true;
+      }
+    }
+
     function updateKapasitasInfo() {
       const tipe = serviceTypeSelect.value;
       const layananId = serviceSelect.value;
@@ -352,7 +382,9 @@
       fetch(`/booking/get-kapasitas/?tanggal=${tanggal}&layanan_id=${layananId}&durasi=${durasi}`)
         .then(response => {
           if (!response.ok) {
-            return response.json().then(err => { throw new Error(err.error || 'Terjadi kesalahan jaringan.'); });
+            return response.json().then(err => {
+              throw new Error(err.error || 'Terjadi kesalahan jaringan.');
+            });
           }
           return response.json();
         })
@@ -376,7 +408,7 @@
         });
     }
 
-    // Fungsi untuk memuat data dan merender kalender
+    // === Logika Modal Kalender ===
     function renderCalendar(year, month) {
       const today = new Date();
       const firstDayOfMonth = new Date(year, month, 1);
@@ -384,7 +416,7 @@
       const startDayOfWeek = firstDayOfMonth.getDay();
 
       currentMonthYear.textContent = `${firstDayOfMonth.toLocaleString('id-ID', { month: 'long' })} ${year}`;
-      
+
       const weekdays = calendarGrid.querySelectorAll('div:not(.day)');
       while (calendarGrid.childElementCount > weekdays.length) {
         calendarGrid.removeChild(calendarGrid.lastChild);
@@ -396,34 +428,40 @@
         calendarGrid.appendChild(emptyDiv);
       }
 
-      for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
-        const dayDiv = document.createElement('div');
-        dayDiv.classList.add('p-2', 'rounded-lg', 'font-medium', 'text-gray-700', 'cursor-pointer', 'day');
-        dayDiv.textContent = day;
-
-        const date = new Date(year, month, day);
-
-        if (date.getDay() === 0 || date.getDay() === 6 || date < today) {
-          dayDiv.classList.remove('cursor-pointer', 'hover:bg-gray-200');
-          dayDiv.classList.add('text-gray-400', 'line-through');
-        } else {
-          dayDiv.classList.add('hover:bg-gray-200');
-        }
-
-        const dateString = date.toISOString().split('T')[0];
-        dayDiv.dataset.date = dateString;
-        calendarGrid.appendChild(dayDiv);
-      }
-
-      // Ambil data kapasitas dari API untuk bulan ini
       const layananId = serviceSelect.value;
-      fetch(`/booking/get-kapasitas/?tanggal=${firstDayOfMonth.toISOString().split('T')[0]}&bulan=${true}&layanan_id=${layananId}`)
-        .then(response => response.json())
+      const monthStartString = firstDayOfMonth.toISOString().split('T')[0];
+
+      fetch(`/booking/get-kapasitas/?tanggal=${monthStartString}&bulan=true&layanan_id=${layananId}`)
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(err => {
+              throw new Error(err.error || 'Terjadi kesalahan jaringan.');
+            });
+          }
+          return response.json();
+        })
         .then(data => {
-          calendarGrid.querySelectorAll('.day').forEach(dayDiv => {
-            const date = dayDiv.dataset.date;
-            if (data.kapasitas_bulan[date] !== undefined) {
-              const kapasitas = data.kapasitas_bulan[date];
+          for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.classList.add('p-2', 'rounded-lg', 'font-medium', 'text-gray-700', 'day');
+            dayDiv.textContent = day;
+
+            const date = new Date(year, month, day);
+            const dateString = date.toISOString().split('T')[0];
+            dayDiv.dataset.date = dateString;
+
+            const kapasitas = data.kapasitas_bulan[dateString];
+
+            if (date.getDay() === 0 || date.getDay() === 6 || date < today) {
+              dayDiv.classList.add('text-gray-400', 'line-through');
+            } else if (kapasitas === 0) {
+              dayDiv.classList.add('text-gray-400', 'line-through');
+              dayDiv.classList.remove('cursor-pointer', 'hover:bg-gray-200');
+            } else {
+              dayDiv.classList.add('cursor-pointer', 'hover:bg-gray-200');
+            }
+            
+            if (kapasitas !== undefined) {
               const slotSpan = document.createElement('span');
               slotSpan.classList.add('text-xs', 'block', 'mt-1', 'font-normal');
               if (kapasitas > 0) {
@@ -432,53 +470,77 @@
               } else {
                 slotSpan.textContent = 'Penuh';
                 slotSpan.classList.add('text-red-600');
-                dayDiv.classList.remove('cursor-pointer', 'hover:bg-gray-200');
-                dayDiv.classList.add('text-gray-400', 'line-through');
               }
               dayDiv.appendChild(slotSpan);
             }
-          });
+            
+            calendarGrid.appendChild(dayDiv);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching calendar data:', error);
+          alert('Terjadi kesalahan saat memuat kalender. Mohon coba lagi.');
         });
     }
 
-    // Event listeners untuk navigasi kalender
+    // Event listeners navigasi kalender
     prevMonthBtn.addEventListener('click', () => {
       currentDate.setMonth(currentDate.getMonth() - 1);
       renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
     });
-
     nextMonthBtn.addEventListener('click', () => {
       currentDate.setMonth(currentDate.getMonth() + 1);
       renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
     });
 
-    // Event listener untuk membuka modal
+    // Event listener untuk membuka/menutup modal
     openCalendarBtn.addEventListener('click', () => {
       if (serviceTypeSelect.value === 'sitting' && serviceSelect.value) {
         availabilityModal.classList.remove('hidden');
-        document.body.style.overflow = "hidden";
+        document.body.style.overflow = 'hidden';
         currentDate = new Date();
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
       } else {
         alert('Mohon pilih Tipe Layanan dan Layanan Penitipan terlebih dahulu.');
       }
     });
-
-    // Event listener untuk menutup modal
     closeAvailabilityModal.addEventListener('click', () => {
       availabilityModal.classList.add('hidden');
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = 'auto';
     });
 
+    // === Inisialisasi Event Listeners ===
     serviceTypeSelect.addEventListener('change', updateKapasitasInfo);
     serviceSelect.addEventListener('change', updateKapasitasInfo);
     tanggalInput.addEventListener('change', updateKapasitasInfo);
     durasiInput.addEventListener('input', updateKapasitasInfo);
 
+    const openTermsBtn = document.getElementById("openTerms");
+    const termsModal = document.getElementById("termsModal");
+    const closeTermsBtn = document.getElementById("closeTerms");
+
+    openTermsBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        termsModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    });
+
+    closeTermsBtn.addEventListener("click", () => {
+        termsModal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+    });
+
+    termsModal.addEventListener("click", (e) => {
+        if (e.target === termsModal) {
+            termsModal.classList.add("hidden");
+            document.body.style.overflow = "auto";
+        }
+    });
+
+    // Panggil saat halaman dimuat
     if (serviceTypeSelect.value && serviceSelect.value && tanggalInput.value) {
       updateKapasitasInfo();
     }
   });
-
 </script>
 {% endblock scriptsheet %}

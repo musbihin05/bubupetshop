@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 import weasyprint  # pastikan sudah install: pip install weasyprint
 from datetime import datetime, timedelta
+import json
 
 # Create your views here.
 def index(request):
@@ -220,24 +221,52 @@ def get_daily_capacity(request):
         tanggal_str = request.GET.get('tanggal')
         layanan_id = request.GET.get('layanan_id')
         durasi_str = request.GET.get('durasi')
+        bulan_view = request.GET.get('bulan')
         
-        if not tanggal_str or not layanan_id or not durasi_str:
+        if not tanggal_str or not layanan_id:
             return JsonResponse({'error': 'Data yang dibutuhkan tidak lengkap.'}, status=400)
         
         try:
-            tanggal_mulai = datetime.strptime(tanggal_str, '%Y-%m-%d %H:%M').date()
+            if bulan_view:
+                # PERBAIKAN: Format string untuk parse tanggal yang tanpa jam
+                tanggal_mulai = datetime.strptime(tanggal_str, '%Y-%m-%d').date()
+                layanan_penitipan_obj = LayananPenitipan.objects.get(pk=layanan_id)
+
+                first_day_of_month = tanggal_mulai.replace(day=1)
+                
+                # Perhitungan last day of month yang lebih aman
+                if first_day_of_month.month == 12:
+                    last_day_of_month = first_day_of_month.replace(year=first_day_of_month.year + 1, month=1) - timedelta(days=1)
+                else:
+                    last_day_of_month = first_day_of_month.replace(month=first_day_of_month.month + 1) - timedelta(days=1)
+
+                kapasitas_bulan = {}
+                current_day = first_day_of_month
+                while current_day <= last_day_of_month:
+                    kapasitas_harian, created = DailyCapacity.objects.get_or_create(
+                        layanan_penitipan=layanan_penitipan_obj,
+                        tanggal=current_day,
+                        defaults={'kapasitas_tersedia': layanan_penitipan_obj.kapasitas_penitipan}
+                    )
+                    kapasitas_bulan[current_day.strftime('%Y-%m-%d')] = kapasitas_harian.kapasitas_tersedia
+                    current_day += timedelta(days=1)
+                
+                return JsonResponse({'kapasitas_bulan': kapasitas_bulan})
+
+            # Jika permintaan adalah untuk validasi booking dengan durasi
             durasi = int(durasi_str)
             if durasi <= 0:
                 return JsonResponse({
                     'kapasitas_cukup': False,
                     'pesan': 'Durasi booking harus lebih dari 0 hari.'
                 })
-                
+            
+            # PERBAIKAN: Format string untuk parse tanggal yang dengan jam
+            tanggal_mulai = datetime.strptime(tanggal_str, '%Y-%m-%d %H:%M').date()
             layanan_penitipan_obj = LayananPenitipan.objects.get(pk=layanan_id)
 
             kapasitas_minimum_tersedia = float('inf')
             
-            # Periksa kapasitas untuk setiap hari dalam durasi booking
             for i in range(durasi):
                 tanggal_per_hari = tanggal_mulai + timedelta(days=i)
                 
@@ -265,7 +294,7 @@ def get_daily_capacity(request):
             
     return JsonResponse({'error': 'Metode request tidak diizinkan.'}, status=405)
 
-@csrf_exempt
+
 def detail_booking(request, booking_id):
     booking = get_object_or_404(BookingLayanan, id_booking=booking_id, id_user=request.user)
     data = {
