@@ -5,6 +5,7 @@ from user.models import User
 import os
 import datetime
 from django.utils import timezone  # Tambahkan import ini
+from datetime import timedelta
 
 
 
@@ -58,3 +59,17 @@ class BookingLayanan(models.Model):
 
     def __str__(self):
         return f"{self.id_booking} - {self.tipe_layanan}"
+    
+# Di bookinglayanan/models.py
+class DailyCapacity(models.Model):
+    layanan_penitipan = models.ForeignKey(LayananPenitipan, on_delete=models.CASCADE)
+    tanggal = models.DateField()
+    kapasitas_tersedia = models.IntegerField()
+
+    class Meta:
+        unique_together = ('layanan_penitipan', 'tanggal',)
+        verbose_name_plural = "Daily Capacities"
+
+    def __str__(self):
+        # Ubah .nama_layanan menjadi .jenis_penitipan
+        return f"Kapasitas pada {self.tanggal} untuk {self.layanan_penitipan.jenis_penitipan}"

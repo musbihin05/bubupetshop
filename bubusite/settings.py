@@ -13,6 +13,25 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
+
+# Konfigurasi Celery
+CELERY_BROKER_URL = 'redis://127.0.0.1:8000/' # Ganti dengan URL broker Anda
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Jakarta'
+
+# Konfigurasi Jadwal Celery Beat
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'cancel-pending-bookings-every-15-minutes': {
+        'task': 'bookinglayanan.tasks.cancel_pending_bookings',
+        'schedule': crontab(minute='*/2'),  # Jalankan setiap 15 menit
+    },
+}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

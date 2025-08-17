@@ -5,3 +5,4 @@ WeasyPrint
 django-admin-rangefilter
 gunicorn
 whitenoise
+celery redis

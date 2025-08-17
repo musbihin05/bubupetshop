@@ -3,30 +3,24 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-<!-- Page Header -->
 <div class="bg-gray-700 py-10 px-4 relative">
   <div class="container mx-auto text-center">
     <h1 class="text-4xl font-bold text-white mb-2">Booking Layanan</h1>
     <p class="text-white text-lg">Isi formulir di bawah ini untuk reservasi layanan</p>
   </div>
-  {% comment %} <i
-    class="fas fa-calendar-check absolute top-6 right-8 sm:right-8 text-white opacity-80 text-4xl md:text-5xl section-icon"></i> {% endcomment %}
 </div>
 
-<!-- Booking Form Section -->
 <section class="py-16">
   <div class="container mx-auto px-4 max-w-4xl">
 
-    <!-- Form Card -->
     <div class="bg-white rounded-xl shadow-lg p-8 card-shadow">
       <form id="bookingForm" method="POST" action="" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <!-- Pet Selection -->
         <div class="mb-6">
-          <label for="pet" class="form-label">Pilih Peliharaan <span class="text-red-500">*</span></label>
+          <label for="id_hewan" class="form-label">Pilih Peliharaan <span class="text-red-500">*</span></label>
           <div class="select-wrapper">
-            <select id="pet" name="id_hewan" class="form-select" required>
+            <select id="id_hewan" name="id_hewan" class="form-select" required>
               <option value="" disabled selected>-- Pilih Hewan Peliharaan --</option>
               {% for pet in peliharaan %}
               <option value="{{ pet.id_hewan }}">{{ pet.nama_hewan }} ({{ pet.jenis_hewan }})</option>
@@ -35,11 +29,10 @@
           </div>
         </div>
 
-        <!-- Service Type Selection -->
         <div class="mb-6">
-          <label for="service-type" class="form-label">Tipe Layanan <span class="text-red-500">*</span></label>
+          <label for="id_tipe_layanan" class="form-label">Tipe Layanan <span class="text-red-500">*</span></label>
           <div class="select-wrapper">
-            <select id="service-type" name="tipe_layanan" class="form-select" required>
+            <select id="id_tipe_layanan" name="tipe_layanan" class="form-select" required>
               <option value="" disabled selected>-- Pilih Tipe Layanan --</option>
               {% for key, value in tipe_layanan.items %}
               <option value="{{ key }}">{{ value }}</option>
@@ -48,42 +41,48 @@
           </div>
         </div>
 
-        <!-- Dynamic Service Selection -->
         <div class="mb-6">
-          <label for="service" class="form-label">Layanan <span class="text-red-500">*</span></label>
+          <label for="id_layanan" class="form-label">Layanan <span class="text-red-500">*</span></label>
           <div class="select-wrapper">
-            <select id="service" name="layanan" class="form-select" required disabled>
+            <select id="id_layanan" name="layanan" class="form-select" required disabled>
               <option value="" disabled selected>-- Pilih Layanan --</option>
             </select>
           </div>
         </div>
 
-        <!-- Date and Time -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label for="booking-date" class="form-label">Tanggal Booking <span class="text-red-500">*</span></label>
-            <input type="datetime-local" id="booking-date" name="tanggal" class="form-input" required>
+            <label for="id_tanggal" class="form-label">
+              Tanggal Booking <span class="text-red-500">*</span>
+              <button type="button" id="openCalendarBtn" class="ml-2 text-orange-theme focus:outline-none">
+                <i class="fas fa-calendar-alt text-lg"></i>
+              </button>
+            </label>
+            <input type="text" id="id_tanggal" name="tanggal" class="form-input" required>
+            <span id="date-error" class="text-red-500 text-xs mt-1 hidden"></span>
           </div>
           <div>
-            <label for="booking-time" class="form-label">Durasi Booking Penitipan <span
+            <label for="id_durasi" class="form-label">Durasi Booking Penitipan <span
                 class="text-xs text-gray-500">(Harga x hari)</span><span class="text-red-500">*</span></label>
-            <input type="number" id="booking-time" name="durasi" class="form-input" min="1" required disabled
+            <input type="number" id="id_durasi" name="durasi" class="form-input" min="1" required disabled
               placeholder="Masukkan durasi dalam hari">
           </div>
         </div>
+        
+        <div id="kapasitas-container" class="mb-6 hidden">
+            <p class="form-label">Informasi Ketersediaan</p>
+            <p id="kapasitas-info" class="text-sm mt-1"></p>
+        </div>
 
-        <!-- Notes Textarea -->
         <div class="mb-8">
-          <label for="notes" class="form-label">Catatan Booking</label>
-          <textarea id="notes" name="catatan" class="form-input min-h-[120px] resize-y"
+          <label for="id_catatan" class="form-label">Catatan Booking</label>
+          <textarea id="id_catatan" name="catatan" class="form-input min-h-[120px] resize-y"
             placeholder="Tuliskan catatan atau kebutuhan khusus untuk layanan Anda..."></textarea>
         </div>
-        <!-- Terms and Conditions -->
-        <!-- Checkbox Terms -->
         <div class="mb-6">
           <div class="flex items-start">
-            <input id="terms" type="checkbox" class="form-checkbox mt-1" required />
-            <label for="terms" class="ml-2 text-sm text-gray-600">
+            <input id="id_terms" type="checkbox" class="form-checkbox mt-1" required />
+            <label for="id_terms" class="ml-2 text-sm text-gray-600">
               Saya menyetujui
               <a href="#" id="openTerms" class="text-orange-theme hover:underline">
                 Syarat & Ketentuan
@@ -93,10 +92,8 @@
           </div>
         </div>
 
-        <!-- Modal -->
         <div id="termsModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-start justify-center overflow-y-auto">
           <div class="bg-white rounded-lg w-full h-screen md:h-auto md:max-w-2xl mx-auto md:mt-10 flex flex-col overflow-hidden"><br><br><br>
-            <!-- Body (scrollable) -->
             <div
               class="p-4 overflow-y-auto text-gray-700 text-sm space-y-4 flex-1"
             >
@@ -138,7 +135,6 @@
               </ul>
             </div>
 
-            <!-- Footer -->
             <div class="p-4 border-t border-gray-200 flex justify-center flex-shrink-0">
               <button
                 id="closeTerms"
@@ -148,8 +144,7 @@
             </div>
           </div>
         </div>
-
-        <!-- Submit Button -->
+        
         <div class="text-center">
           <button type="submit" class="btn-modern px-8 py-3">
             <i class="fas fa-calendar-check mr-2"></i> Booking Sekarang
@@ -159,20 +154,49 @@
     </div>
   </div>
 </section>
+
+<div id="availabilityModal" class="fixed inset-0 z-50 hidden bg-black bg-opacity-50 flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full md:w-3/4">
+    <div class="flex justify-between items-center mb-4 border-b pb-2">
+      <h3 class="text-xl font-bold text-gray-800">Cek Ketersediaan Penitipan</h3>
+      <button id="closeAvailabilityModal" class="text-gray-500 hover:text-gray-700 focus:outline-none text-xl">
+        &times;
+      </button>
+    </div>
+    <div class="space-y-4">
+      <div class="flex items-center justify-between mb-4">
+        <button id="prevMonthBtn" class="bg-gray-200 hover:bg-gray-300 p-2 rounded-lg">&lt;</button>
+        <h4 id="currentMonthYear" class="text-lg font-semibold"></h4>
+        <button id="nextMonthBtn" class="bg-gray-200 hover:bg-gray-300 p-2 rounded-lg">&gt;</button>
+      </div>
+      <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center">
+        <div class="font-bold text-sm text-gray-600">Min</div>
+        <div class="font-bold text-sm text-gray-600">Sen</div>
+        <div class="font-bold text-sm text-gray-600">Sel</div>
+        <div class="font-bold text-sm text-gray-600">Rab</div>
+        <div class="font-bold text-sm text-gray-600">Kam</div>
+        <div class="font-bold text-sm text-gray-600">Jum</div>
+        <div class="font-bold text-sm text-gray-600">Sab</div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
 {% block scriptsheet %}
-<script>
-  // Dynamic service selection based on service type from Django context
-  const serviceTypeSelect = document.getElementById('service-type');
-  const serviceSelect = document.getElementById('service');
-  const durasiInput = document.getElementById('booking-time');
-  const layanan = {{ layanan | safe }};
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 
-  // Function to handle service type change
+<script>
+  // Logika form
+  const serviceTypeSelect = document.getElementById('id_tipe_layanan');
+  const serviceSelect = document.getElementById('id_layanan');
+  const durasiInput = document.getElementById('id_durasi');
+  const layanan = {{ layanan|safe }};
+
   function handleServiceTypeChange(selectedType) {
     serviceSelect.innerHTML = '<option value="" disabled selected>-- Pilih Layanan --</option>';
     serviceSelect.disabled = false;
-    // Durasi hanya aktif untuk penitipan
     if (selectedType === 'sitting') {
       durasiInput.disabled = false;
       durasiInput.required = true;
@@ -183,7 +207,6 @@
     }
     if (selectedType && layanan[selectedType]) {
       layanan[selectedType].forEach(function (item) {
-        // Pastikan hanya append jika id dan nama_layanan ada
         if (item.id && item.nama_layanan) {
           const option = document.createElement('option');
           option.value = item.id;
@@ -196,36 +219,19 @@
     }
   }
 
-  // Add event listener for service type change
   serviceTypeSelect.addEventListener('change', function () {
     handleServiceTypeChange(this.value);
   });
-
-  // Parse URL parameters to auto-select service type and service
-  function getUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-      tipe: params.get('tipe'),
-      id: params.get('id')
-    };
-  }
-
+  
   // Auto-select based on parameters from context
   document.addEventListener('DOMContentLoaded', function () {
-    // Check if we have auto-select parameters from Django context
     const autoTipe = "{{ auto_tipe }}";
     const autoId = "{{ auto_id }}";
 
     if (autoTipe && autoId) {
-      // Set service type
       serviceTypeSelect.value = autoTipe;
-
-      // Trigger change to load services
       handleServiceTypeChange(autoTipe);
-
-      // Wait a short moment to ensure options are loaded
       setTimeout(() => {
-        // Find and select the service by ID
         const options = serviceSelect.querySelectorAll('option');
         for (let i = 0; i < options.length; i++) {
           if (options[i].value == autoId) {
@@ -237,7 +243,6 @@
     }
   });
 
-
   const openBtn = document.getElementById("openTerms");
   const modal = document.getElementById("termsModal");
   const closeBtn = document.getElementById("closeTerms");
@@ -245,20 +250,235 @@
   openBtn.addEventListener("click", (e) => {
     e.preventDefault();
     modal.classList.remove("hidden");
-    document.body.style.overflow = "hidden"; // disable scroll background
+    document.body.style.overflow = "hidden";
   });
 
   closeBtn.addEventListener("click", () => {
     modal.classList.add("hidden");
-    document.body.style.overflow = "auto"; // enable scroll background
+    document.body.style.overflow = "auto";
   });
 
-  // Klik di luar modal (hanya di desktop)
   modal.addEventListener("click", (e) => {
     if (e.target === modal) {
       modal.classList.add("hidden");
       document.body.style.overflow = "auto";
     }
   });
+</script>
+<script>
+  // Logika Flatpickr dan pembatasan tanggal
+  const bookingDateInput = document.getElementById('id_tanggal');
+  const dateErrorSpan = document.getElementById('date-error');
+
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+
+  flatpickr(bookingDateInput, {
+    enableTime: true,
+    noCalendar: false,
+    dateFormat: "Y-m-d H:i",
+    minDate: "today",
+    maxDate: lastDayOfMonth,
+
+    disable: [
+      function (date) {
+        return date.getDay() === 0 || date.getDay() === 6;
+      },
+    ],
+
+    minTime: "08:00",
+    maxTime: "17:00",
+    
+    locale: "id",
+  });
+
+  bookingDateInput.addEventListener('change', function() {
+    const selectedDateTime = new Date(this.value);
+    const day = selectedDateTime.getDay();
+    const hours = selectedDateTime.getHours();
+
+    const isWorkingDay = day >= 1 && day <= 5;
+    const isWorkingHours = hours >= 8 && hours < 17;
+
+    if (!isWorkingDay || !isWorkingHours) {
+      dateErrorSpan.textContent = 'Waktu booking hanya tersedia pada hari kerja (Senin-Jumat) dari jam 8 pagi sampai 5 sore.';
+      dateErrorSpan.classList.remove('hidden');
+      this.value = '';
+    } else {
+      dateErrorSpan.textContent = '';
+      dateErrorSpan.classList.add('hidden');
+    }
+  });
+</script>
+<script>
+  // Logika pengecekan kapasitas dinamis
+  document.addEventListener('DOMContentLoaded', function() {
+    const serviceTypeSelect = document.getElementById('id_tipe_layanan');
+    const serviceSelect = document.getElementById('id_layanan');
+    const tanggalInput = document.getElementById('id_tanggal');
+    const durasiInput = document.getElementById('id_durasi');
+    const kapasitasInfo = document.getElementById('kapasitas-info');
+    const kapasitasContainer = document.getElementById('kapasitas-container');
+    const bookingForm = document.getElementById('bookingForm');
+    const openCalendarBtn = document.getElementById('openCalendarBtn');
+    const availabilityModal = document.getElementById('availabilityModal');
+    const closeAvailabilityModal = document.getElementById('closeAvailabilityModal');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentMonthYear = document.getElementById('currentMonthYear');
+    const prevMonthBtn = document.getElementById('prevMonthBtn');
+    const nextMonthBtn = document.getElementById('nextMonthBtn');
+    
+    let currentDate = new Date();
+
+    // Fungsi untuk memperbarui info kapasitas
+    function updateKapasitasInfo() {
+      const tipe = serviceTypeSelect.value;
+      const layananId = serviceSelect.value;
+      const tanggal = tanggalInput.value;
+      const durasi = durasiInput.value;
+
+      if (tipe !== 'sitting' || !layananId || !tanggal || !durasi || durasi <= 0) {
+        kapasitasContainer.classList.add('hidden');
+        bookingForm.classList.remove('pointer-events-none', 'opacity-50');
+        return;
+      }
+
+      kapasitasInfo.innerHTML = '<span class="text-gray-500">Memeriksa ketersediaan...</span>';
+      kapasitasContainer.classList.remove('hidden');
+      bookingForm.classList.add('pointer-events-none', 'opacity-50');
+
+      fetch(`/booking/get-kapasitas/?tanggal=${tanggal}&layanan_id=${layananId}&durasi=${durasi}`)
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || 'Terjadi kesalahan jaringan.'); });
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.error) {
+            kapasitasInfo.innerHTML = `<span class="text-red-500">Error: ${data.error}</span>`;
+            bookingForm.classList.add('pointer-events-none', 'opacity-50');
+          } else if (data.kapasitas_cukup === false) {
+            kapasitasInfo.innerHTML = `<span class="text-red-500">${data.pesan}</span>`;
+            bookingForm.classList.add('pointer-events-none', 'opacity-50');
+          } else {
+            const kapasitas = data.kapasitas_tersedia;
+            kapasitasInfo.innerHTML = `<span class="text-green-500">Kapasitas Tersedia: ${kapasitas} slot</span>`;
+            bookingForm.classList.remove('pointer-events-none', 'opacity-50');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching capacity:', error);
+          kapasitasInfo.innerHTML = `<span class="text-red-500">Terjadi kesalahan saat memeriksa kapasitas.</span>`;
+          bookingForm.classList.add('pointer-events-none', 'opacity-50');
+        });
+    }
+
+    // Fungsi untuk memuat data dan merender kalender
+    function renderCalendar(year, month) {
+      const today = new Date();
+      const firstDayOfMonth = new Date(year, month, 1);
+      const lastDayOfMonth = new Date(year, month + 1, 0);
+      const startDayOfWeek = firstDayOfMonth.getDay();
+
+      currentMonthYear.textContent = `${firstDayOfMonth.toLocaleString('id-ID', { month: 'long' })} ${year}`;
+      
+      const weekdays = calendarGrid.querySelectorAll('div:not(.day)');
+      while (calendarGrid.childElementCount > weekdays.length) {
+        calendarGrid.removeChild(calendarGrid.lastChild);
+      }
+
+      for (let i = 0; i < startDayOfWeek; i++) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.classList.add('p-2');
+        calendarGrid.appendChild(emptyDiv);
+      }
+
+      for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('p-2', 'rounded-lg', 'font-medium', 'text-gray-700', 'cursor-pointer', 'day');
+        dayDiv.textContent = day;
+
+        const date = new Date(year, month, day);
+
+        if (date.getDay() === 0 || date.getDay() === 6 || date < today) {
+          dayDiv.classList.remove('cursor-pointer', 'hover:bg-gray-200');
+          dayDiv.classList.add('text-gray-400', 'line-through');
+        } else {
+          dayDiv.classList.add('hover:bg-gray-200');
+        }
+
+        const dateString = date.toISOString().split('T')[0];
+        dayDiv.dataset.date = dateString;
+        calendarGrid.appendChild(dayDiv);
+      }
+
+      // Ambil data kapasitas dari API untuk bulan ini
+      const layananId = serviceSelect.value;
+      fetch(`/booking/get-kapasitas/?tanggal=${firstDayOfMonth.toISOString().split('T')[0]}&bulan=${true}&layanan_id=${layananId}`)
+        .then(response => response.json())
+        .then(data => {
+          calendarGrid.querySelectorAll('.day').forEach(dayDiv => {
+            const date = dayDiv.dataset.date;
+            if (data.kapasitas_bulan[date] !== undefined) {
+              const kapasitas = data.kapasitas_bulan[date];
+              const slotSpan = document.createElement('span');
+              slotSpan.classList.add('text-xs', 'block', 'mt-1', 'font-normal');
+              if (kapasitas > 0) {
+                slotSpan.textContent = `${kapasitas} slot`;
+                slotSpan.classList.add('text-green-600');
+              } else {
+                slotSpan.textContent = 'Penuh';
+                slotSpan.classList.add('text-red-600');
+                dayDiv.classList.remove('cursor-pointer', 'hover:bg-gray-200');
+                dayDiv.classList.add('text-gray-400', 'line-through');
+              }
+              dayDiv.appendChild(slotSpan);
+            }
+          });
+        });
+    }
+
+    // Event listeners untuk navigasi kalender
+    prevMonthBtn.addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+    });
+
+    // Event listener untuk membuka modal
+    openCalendarBtn.addEventListener('click', () => {
+      if (serviceTypeSelect.value === 'sitting' && serviceSelect.value) {
+        availabilityModal.classList.remove('hidden');
+        document.body.style.overflow = "hidden";
+        currentDate = new Date();
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+      } else {
+        alert('Mohon pilih Tipe Layanan dan Layanan Penitipan terlebih dahulu.');
+      }
+    });
+
+    // Event listener untuk menutup modal
+    closeAvailabilityModal.addEventListener('click', () => {
+      availabilityModal.classList.add('hidden');
+      document.body.style.overflow = "auto";
+    });
+
+    serviceTypeSelect.addEventListener('change', updateKapasitasInfo);
+    serviceSelect.addEventListener('change', updateKapasitasInfo);
+    tanggalInput.addEventListener('change', updateKapasitasInfo);
+    durasiInput.addEventListener('input', updateKapasitasInfo);
+
+    if (serviceTypeSelect.value && serviceSelect.value && tanggalInput.value) {
+      updateKapasitasInfo();
+    }
+  });
+
 </script>
 {% endblock scriptsheet %}

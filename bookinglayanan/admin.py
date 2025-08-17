@@ -2,33 +2,29 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
 from django.contrib.admin import DateFieldListFilter
-from bookinglayanan.models import BookingLayanan
-from .models import LayananPenitipan
-from django.urls import reverse
+from .models import BookingLayanan, DailyCapacity, LayananPenitipan
 from riwayatpenjualan.models import RiwayatPenjualan
+from django.urls import reverse
+from datetime import timedelta
 
 
-# Register your models here.
+@admin.register(BookingLayanan)
 class BookingLayananAdmin(admin.ModelAdmin):
 
     def has_module_permission(self, request):
-        # Hanya tampilkan menu jika user adalah superuser
         return request.user.is_superuser or request.user.is_staff
       
-    def has_view_permission(self, request, obj = ...):
+    def has_view_permission(self, request, obj=None):
         return request.user.is_superuser or request.user.is_staff
       
-    def has_delete_permission(self, request, obj = ...):
+    def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser 
       
-    def has_change_permission(self, request, obj = ...):
-        return request.user.is_superuser or request.user
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser or request.user.is_staff
       
-  
-  
-    # Gabungkan id_booking dan tanggal_booking dalam satu kolom
     list_display = (
-        'booking_info', 'user_no_hp', 'tipe_layanan', 'status_booking_badge',
+        'booking_info', 'user_no_hp', 'tipe_layanan_display', 'status_booking_badge',
         'status_bayar', 'harga_booking_rupiah', 'tanggal_selesai',
     )
     search_fields = ('id_booking', 'id_user__email', 'tipe_layanan')
@@ -50,7 +46,10 @@ class BookingLayananAdmin(admin.ModelAdmin):
     user_no_hp.short_description = 'No HP Pelanggan'
     user_no_hp.admin_order_field = 'id_user__no_hp'
 
-   
+    def tipe_layanan_display(self, obj):
+        return obj.get_tipe_layanan_display()
+    tipe_layanan_display.short_description = 'Tipe Layanan'
+    tipe_layanan_display.admin_order_field = 'tipe_layanan'
 
     def export_as_csv(self, request, queryset):
         import csv
@@ -85,23 +84,17 @@ class BookingLayananAdmin(admin.ModelAdmin):
         updated = 0
         added_to_history = 0
         for booking in queryset:
-            # Simpan status sebelumnya sebelum diubah
             previous_status = booking.status_booking
             
-            # Hanya proses jika status sebelumnya bukan 'completed'
             if previous_status != 'completed':
                 booking.status_booking = 'completed'
                 booking.tanggal_selesai = timezone.now()
                 
-                layanan_penitipan = LayananPenitipan.objects.filter(id_penitipan=booking.booking_penitipan_id).first()
-                if layanan_penitipan:
-                    layanan_penitipan.kapasitas_penitipan += 1
-                    layanan_penitipan.save()
+                # Kapasitas tidak perlu dikembalikan saat selesai
                 
                 booking.save()
                 updated += 1
                 
-                # Tambahkan data ke riwayat penjualan hanya jika status berubah
                 nama_layanan = ""
                 if booking.tipe_layanan == 'grooming' and booking.booking_grooming:
                     nama_layanan = f"{booking.booking_grooming.nama_grooming} (Grooming)"
@@ -112,24 +105,20 @@ class BookingLayananAdmin(admin.ModelAdmin):
                 else:
                     nama_layanan = booking.get_tipe_layanan_display()
                     
-                # Format nama pelanggan
                 nama_pelanggan = booking.id_user.email
                 if hasattr(booking.id_user, 'nama') and booking.id_user.nama:
                     nama_pelanggan = booking.id_user.nama
                     
-                # Format no hp
                 no_hp = ""
                 if hasattr(booking.id_user, 'no_hp') and booking.id_user.no_hp:
                     no_hp = f" ({booking.id_user.no_hp})"
                     
-                # Cek apakah sudah ada entri dengan booking_id ini di riwayat penjualan
                 if not RiwayatPenjualan.objects.filter(
                     pelanggan=f"{nama_pelanggan}{no_hp}",
                     layanan=nama_layanan,
                     status='completed',
                     total_penjualan=booking.harga_booking
                 ).exists():
-                    # Buat entry riwayat penjualan
                     RiwayatPenjualan.objects.create(
                         tanggal_penjualan=timezone.now(),
                         pelanggan=f"{nama_pelanggan}{no_hp}",
@@ -138,11 +127,10 @@ class BookingLayananAdmin(admin.ModelAdmin):
                         total_penjualan=booking.harga_booking
                     )
                     added_to_history += 1
-            else:
-                # Jika status sudah 'completed', tetap hitung sebagai updated
-                booking.save()  # Perbarui timestamp
-                updated += 1
-                
+                else:
+                    booking.save()
+                    updated += 1
+                    
         if added_to_history > 0:
             self.message_user(request, f"{updated} booking diubah ke status selesai, {added_to_history} ditambahkan ke riwayat penjualan")
         else:
@@ -162,17 +150,31 @@ class BookingLayananAdmin(admin.ModelAdmin):
         updated = 0
         added_to_history = 0
         for booking in queryset:
-            # Simpan status sebelumnya sebelum diubah
             previous_status = booking.status_booking
             
-            # Hanya proses jika status sebelumnya bukan 'cancelled'
             if previous_status != 'cancelled':
                 booking.status_booking = 'cancelled'
                 booking.tanggal_selesai = timezone.now()
+                
+                # Hapus baris ini: layanan_penitipan.kapasitas_penitipan += 1
+                if booking.tipe_layanan == 'sitting' and booking.booking_penitipan and booking.tanggal_booking and booking.durasi_layanan:
+                    tanggal_mulai = booking.tanggal_booking.date()
+                    durasi = booking.durasi_layanan
+                    for i in range(durasi):
+                        tanggal_per_hari = tanggal_mulai + timedelta(days=i)
+                        try:
+                            kapasitas_harian = DailyCapacity.objects.get(
+                                layanan_penitipan=booking.booking_penitipan,
+                                tanggal=tanggal_per_hari
+                            )
+                            kapasitas_harian.kapasitas_tersedia += 1
+                            kapasitas_harian.save()
+                        except DailyCapacity.DoesNotExist:
+                            pass
+                
                 booking.save()
                 updated += 1
                 
-                # Tambahkan data ke riwayat penjualan hanya jika status berubah
                 nama_layanan = ""
                 if booking.tipe_layanan == 'grooming' and booking.booking_grooming:
                     nama_layanan = f"{booking.booking_grooming.nama_grooming} (Grooming)"
@@ -183,24 +185,20 @@ class BookingLayananAdmin(admin.ModelAdmin):
                 else:
                     nama_layanan = booking.get_tipe_layanan_display()
                     
-                # Format nama pelanggan
                 nama_pelanggan = booking.id_user.email
                 if hasattr(booking.id_user, 'nama') and booking.id_user.nama:
                     nama_pelanggan = booking.id_user.nama
                     
-                # Format no hp
                 no_hp = ""
                 if hasattr(booking.id_user, 'no_hp') and booking.id_user.no_hp:
                     no_hp = f" ({booking.id_user.no_hp})"
-                
-                # Cek apakah sudah ada entri dengan booking_id ini di riwayat penjualan
+                    
                 if not RiwayatPenjualan.objects.filter(
                     pelanggan=f"{nama_pelanggan}{no_hp}",
                     layanan=nama_layanan,
                     status='cancelled',
                     total_penjualan=booking.harga_booking
                 ).exists():
-                    # Buat entry riwayat penjualan
                     RiwayatPenjualan.objects.create(
                         tanggal_penjualan=timezone.now(),
                         pelanggan=f"{nama_pelanggan}{no_hp}",
@@ -209,10 +207,9 @@ class BookingLayananAdmin(admin.ModelAdmin):
                         total_penjualan=booking.harga_booking
                     )
                     added_to_history += 1
-            else:
-                # Jika status sudah 'cancelled', tetap hitung sebagai updated
-                booking.save()  # Perbarui timestamp
-                updated += 1
+                else:
+                    booking.save()
+                    updated += 1
         
         if added_to_history > 0:
             self.message_user(request, f"{updated} booking diubah ke status batal, {added_to_history} ditambahkan ke riwayat penjualan")
@@ -221,7 +218,6 @@ class BookingLayananAdmin(admin.ModelAdmin):
     set_status_batal.short_description = "Ubah status ke Batal"
 
     def status_booking_badge(self, obj):
-        # Contoh badge berdasarkan status_booking
         color = {
             'pending': 'warning',
             'confirmed': 'info',
@@ -249,11 +245,15 @@ class BookingLayananAdmin(admin.ModelAdmin):
     status_bayar.admin_order_field = 'bukti_pembayaran'
 
     def harga_booking_rupiah(self, obj):
-        # Format harga booking ke rupiah dengan titik sebagai pemisah ribuan
         value = int(obj.harga_booking)
         rupiah = f"Rp {value:,}".replace(",", ".")
         return format_html('<span>{}</span>', rupiah)
     harga_booking_rupiah.short_description = 'Harga Booking'
     harga_booking_rupiah.admin_order_field = 'harga_booking'
 
-admin.site.register(BookingLayanan, BookingLayananAdmin)
+@admin.register(DailyCapacity)
+class DailyCapacityAdmin(admin.ModelAdmin):
+    list_display = ('layanan_penitipan', 'tanggal', 'kapasitas_tersedia')
+    list_filter = ('layanan_penitipan', 'tanggal')
+    search_fields = ('layanan_penitipan__jenis_penitipan', 'tanggal')
+    ordering = ('tanggal', 'layanan_penitipan__jenis_penitipan')
