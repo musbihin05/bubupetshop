@@ -3,6 +3,8 @@
 
 {% block title %}{{ title }}{% endblock title %}
 
+
+
 {% block content %}
 <!-- Page Header -->
 <div class="bg-gray-700 py-10 px-4 relative">
@@ -41,13 +43,13 @@
         <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
           <!-- Badge for availability status -->
           <div class="relative">
-            {% if service.kapasitas_penitipan > 0 %}
+            {% comment %} {% if service.kapasitas_penitipan > 0 %}
             <span
               class="absolute top-2 left-2 md:top-3 md:left-3 z-10 bg-green-500 text-white text-[10px] xs:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full">Tersedia</span>
             {% else %}
             <span
               class="absolute top-2 left-2 md:top-3 md:left-3 z-10 bg-red-500 text-white text-[10px] xs:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full">Penuh</span>
-            {% endif %}
+            {% endif %} {% endcomment %}
 
             <!-- Service Image with Overlay -->
             <div class="relative overflow-hidden">
